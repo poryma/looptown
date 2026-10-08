@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loop Town</title>
+<!-- PUBS279 AI and Society · Week 06 Algorithmic Bias · practice · 2026-10-08
+     One file, no install. Open in any browser. Pixel font loads from Google Fonts if online (falls back to monospace).
+     Instructor preview: add ?all to the URL to unlock every stage. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2b53;--paper:#fff8ef;--paper2:#ffeedd;--bg:#141b38;--pink:#ff77a8;--plum:#7e2553;--blue:#29adff;--orange:#ffa300;--green:#00a050;--yellow:#ffec27;--muted:#6b6259;--red:#e8204e;--c1:#ff77a8;--c2:#29adff;--c3:#ffa300;--c4:#00c060}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:16px 16px;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Microsoft YaHei","PingFang SC",sans-serif;font-size:15px;line-height:1.55;min-height:100vh}
+.en,.ko,.zh{display:none}
+.pix{font-family:"Press Start 2P",ui-monospace,monospace;letter-spacing:.5px}
+button{font:inherit;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:12px 16px 90px}
+header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:#fff8ef;padding:6px 0 10px}
+.logo{font-family:"Press Start 2P",monospace;font-size:20px;color:var(--yellow);text-shadow:3px 3px 0 var(--plum);white-space:nowrap}
+.sub{font-size:12px;opacity:.75}
+.spacer{flex:1}
+.langbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.langbar button{background:#26315f;border:3px solid #0b1030;color:#fff8ef;padding:4px 10px;cursor:pointer;font-weight:700}
+.langbar button.on{background:var(--yellow);color:var(--ink)}
+.langbar label{font-size:12px;display:flex;gap:4px;align-items:center;cursor:pointer}
+.stars{font-family:"Press Start 2P",monospace;font-size:11px;color:var(--yellow);white-space:nowrap}
+nav.map{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.chap{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.05);padding:4px 6px}
+.chap .cl{font-family:"Press Start 2P",monospace;font-size:8px;color:#fff8ef;opacity:.8;margin-right:4px}
+.sq{width:30px;height:30px;border:3px solid #0b1030;font-family:"Press Start 2P",monospace;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);padding:0}
+.sq.lock{opacity:.3;cursor:not-allowed}
+.sq.cur{outline:3px solid var(--yellow);outline-offset:1px}
+.sq.done{position:relative}
+.sq.done::after{content:"";position:absolute;right:-3px;top:-3px;width:8px;height:8px;background:var(--yellow);border:2px solid #0b1030}
+main.game{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:920px){main.game{grid-template-columns:1fr}}
+.box{background:var(--paper);border:4px solid #0b1030;box-shadow:6px 6px 0 rgba(0,0,0,.4)}
+.screen{padding:0;background:#0b1030}
+canvas{display:block;width:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+#scene{aspect-ratio:320/180;cursor:pointer}
+#chart{aspect-ratio:320/120}
+.chartbox{margin-top:14px;padding:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;padding:6px 2px 0}
+.legend i{display:inline-block;width:12px;height:12px;border:2px solid #0b1030;margin-right:5px;vertical-align:-2px}
+.legend span.item{display:inline-flex;align-items:flex-start;gap:0}
+.panel{padding:16px 18px}
+.chtag{display:inline-block;font-family:"Press Start 2P",monospace;font-size:9px;padding:5px 8px;color:#0b1030;border:3px solid #0b1030;margin-bottom:8px}
+h2.title{margin:2px 0 8px;font-size:21px;line-height:1.3}
+.story{margin:0 0 10px}
+.story i{color:var(--plum)}
+.task{background:var(--paper2);border-left:6px solid var(--orange);padding:8px 10px;margin:10px 0;font-weight:600}
+.task.ok{border-left-color:var(--green)}
+.need{list-style:none;margin:6px 0 0;padding:0;font-weight:600;font-size:14px}.need li{color:#b0103a}.need li.ok{color:var(--green)}
+.pbtn.dim{opacity:.5}
+@keyframes fl{0%,100%{box-shadow:none}30%,70%{box-shadow:0 0 0 5px var(--yellow)}}.flash{animation:fl 1.2s ease 2}
+.task .chk{font-family:"Press Start 2P",monospace;font-size:10px;margin-right:6px}
+.controls{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pbtn{background:var(--yellow);border:3px solid #0b1030;box-shadow:3px 3px 0 #0b1030;padding:7px 12px;font-weight:800;cursor:pointer;text-align:left}
+.pbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #0b1030}
+.pbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0b1030}
+.pbtn.alt{background:#c7f0ff}
+.pbtn.pink{background:#ffc6dc}
+.pbtn.green{background:#b8f5c8}
+.pbtn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:3px 3px 0 #0b1030}
+.slider{background:#fff;border:3px solid #0b1030;padding:8px 10px}
+.slider .lab{font-weight:700;font-size:14px}
+.slider input{width:100%;accent-color:var(--plum)}
+.slider .val{font-family:"Press Start 2P",monospace;font-size:11px;color:var(--plum)}
+.slider .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.seg{display:flex;gap:0;flex-wrap:wrap}
+.seg button{border:3px solid #0b1030;margin-right:-3px;background:#fff;padding:6px 10px;cursor:pointer;font-weight:700;text-align:left}
+.seg button.on{background:var(--plum);color:#fff8ef}
+.readout{font-size:14px}
+.readout .card{background:#fff;border:3px solid #0b1030;padding:8px 10px;margin:6px 0}
+.readout .big{font-family:"Press Start 2P",monospace;font-size:14px;color:var(--plum)}
+.readout table{border-collapse:collapse;width:100%;font-size:13px}
+.readout td,.readout th{border:2px solid #0b1030;padding:4px 6px;text-align:left;vertical-align:top}
+.feed li{margin:2px 0}
+.quiz{margin-top:14px;border-top:4px dashed #0b1030;padding-top:12px}
+.quiz .qh{font-family:"Press Start 2P",monospace;font-size:10px;color:var(--plum);margin-bottom:6px}
+.quiz .q{font-weight:700;margin-bottom:8px}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:3px solid #0b1030;padding:7px 10px;margin:6px 0;cursor:pointer}
+.opt:hover{background:#fff3c4}
+.opt.right{background:#b8f5c8}
+.opt.wrong{background:#ffc6cf}
+.opt.picked{background:#c7f0ff}
+.fb{margin-top:6px;font-size:14px}
+.key{margin-top:14px;background:#1d2b53;color:#fff8ef;padding:12px 14px;border:4px solid #0b1030}
+.key .kh{font-family:"Press Start 2P",monospace;font-size:10px;color:var(--yellow);margin-bottom:6px}
+.key i{color:#ffc6dc}
+.pcard{display:block;width:100%;text-align:left;background:#fff;border:3px solid #0b1030;padding:8px 10px;margin:6px 0;cursor:pointer;font-weight:600}
+.pcard.used{opacity:.35;cursor:default}
+.match{display:grid;grid-template-columns:1fr;gap:8px}
+.match .mrow{background:#fff;border:3px solid #0b1030;padding:8px}
+.match select{width:100%;margin-top:6px;font:inherit;padding:4px;border:2px solid #0b1030}
+.mrow.ok{background:#e4fbe9}.mrow.bad{background:#ffe3e8}
+textarea{width:100%;min-height:90px;font:inherit;border:3px solid #0b1030;padding:8px}
+fieldset{border:3px solid #0b1030;background:#fff;padding:8px 10px;margin:0}
+legend{font-weight:800;padding:0 4px}
+fieldset label{display:flex;gap:6px;align-items:flex-start;margin:4px 0;cursor:pointer}
+.cost{font-size:12px;color:var(--plum);margin-left:24px}
+footer.nav{position:fixed;left:0;right:0;bottom:0;background:#0b1030;border-top:4px solid #000;padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:center;z-index:5}
+footer.nav .where{color:#fff8ef;font-family:"Press Start 2P",monospace;font-size:10px;min-width:120px;text-align:center}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--yellow);border:4px solid #0b1030;box-shadow:5px 5px 0 #000;padding:10px 16px;font-family:"Press Start 2P",monospace;font-size:12px;z-index:30;display:none}
+.overlay{position:fixed;inset:0;background:rgba(10,14,36,.92);z-index:20;display:none;overflow:auto;padding:24px 16px}
+.overlay.show{display:block}
+.ovbox{max-width:760px;margin:30px auto;background:var(--paper);border:4px solid #0b1030;box-shadow:8px 8px 0 #000;padding:22px}
+.bigtitle{font-family:"Press Start 2P",monospace;font-size:34px;color:var(--yellow);text-shadow:4px 4px 0 var(--plum),8px 8px 0 #0b1030;text-align:center;margin:10px 0 4px;background:#1d2b53;padding:22px 10px;border:4px solid #0b1030}
+.langpick{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.langpick button{font-size:18px;font-weight:800;padding:10px 18px;border:4px solid #0b1030;background:#fff;cursor:pointer;box-shadow:4px 4px 0 #0b1030}
+.langpick button.on{background:var(--yellow)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.chips span{border:3px solid #0b1030;padding:4px 8px;font-size:13px;font-weight:700}
+#report h3{margin:16px 0 6px}
+#report table{border-collapse:collapse;width:100%;font-size:13px}
+#report td,#report th{border:2px solid #0b1030;padding:4px 6px;text-align:left;vertical-align:top}
+#report input{font:inherit;border:3px solid #0b1030;padding:4px 6px}
+.refl{white-space:pre-wrap;background:#fff;border:2px solid #0b1030;padding:6px}
+@media print{
+  body{background:#fff}
+  body>*:not(#reportOv){display:none!important}
+  #reportOv{position:static;display:block!important;background:#fff;padding:0}
+  #reportOv .ovbox{box-shadow:none;border:none;margin:0;max-width:none}
+  .noprint{display:none!important}
+}
+</style>
+</head>
+<body>
+<style id="langcss"></style>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="logo">LOOP TOWN</div>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="langbar" id="langbar"></div>
+    <div class="stars" id="stars"></div>
+  </header>
+  <nav class="map" id="map"></nav>
+  <main class="game">
+    <section>
+      <div class="box screen"><canvas id="scene" width="320" height="180"></canvas></div>
+      <div class="box chartbox" id="chartbox"><canvas id="chart" width="320" height="120"></canvas><div class="legend" id="legend"></div></div>
+    </section>
+    <section class="box panel">
+      <div id="chtag" class="chtag"></div>
+      <h2 class="title" id="title"></h2>
+      <div class="story" id="story"></div>
+      <div class="task" id="task"></div>
+      <div class="controls" id="controls"></div>
+      <div class="readout" id="readout"></div>
+      <div class="quiz" id="quiz"></div>
+      <div class="key" id="key"></div>
+    </section>
+  </main>
+</div>
+<footer class="nav">
+  <button class="pbtn alt" id="prev"></button>
+  <div class="where" id="where"></div>
+  <button class="pbtn" id="next"></button>
+</footer>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="titleOv"><div class="ovbox" id="titleBox"></div></div>
+<div class="overlay" id="reportOv"><div class="ovbox" id="report"></div></div>
+
+<script>
+"use strict";
+/* =========================================================
+   LANGUAGE
+   Every text is {ko, zh, en}. The menu picks a main language;
+   "+ English" shows English underneath (small).
+   ========================================================= */
+const LANGS=[{id:'ko',label:'한국어'},{id:'zh',label:'中文'},{id:'en',label:'English'}];
+let INLINE=false;
+function L(o){ if(o==null) return ''; if(INLINE) return tx(o); if(typeof o==='string') return o; return `<span class="ko">${o.ko}</span><span class="zh">${o.zh}</span><span class="en">${o.en}</span>`; }
+function LB(o){ if(o==null) return ''; return `<div class="lb"><div class="ko">${o.ko}</div><div class="zh">${o.zh}</div><div class="en">${o.en}</div></div>`; }
+function tx(o){ return (o && typeof o==='object') ? (o[PROG.lang]||o.en) : (o||''); }
+function applyLang(){
+  const m=PROG.lang, sec=(PROG.withEn && m!=='en')?'en':null;
+  let css=`.${m}{display:inline}.lb>.${m}{display:block}`;
+  if(sec) css+=`.${sec}{display:block;font-size:.86em;opacity:.72;margin-top:2px;font-weight:inherit}.lb>.${sec}{margin-top:6px}`;
+  document.getElementById('langcss').textContent=css;
+  document.documentElement.lang = m==='zh'?'zh-CN':m;
+  renderLangbar();
+}
+const UI={
+  sub:{ko:'알고리즘은 어떻게 소문과 고정관념을 키우나 · PUBS279 6주차 연습',zh:'算法如何放大谣言与刻板印象 · PUBS279 第6周练习',en:'How algorithms grow rumors and stereotypes · PUBS279 Week 6 practice'},
+  withEn:{ko:'+ English',zh:'+ English',en:''},
+  prev:{ko:'◀ 이전',zh:'◀ 上一关',en:'◀ Back'},
+  next:{ko:'다음 ▶',zh:'下一关 ▶',en:'Next ▶'},
+  report:{ko:'내 보고서 보기 ▶',zh:'查看我的报告 ▶',en:'My report ▶'},
+  stage:{ko:'단계',zh:'关',en:'STAGE'},
+  task:{ko:'할 일',zh:'任务',en:'Task'},
+  check:{ko:'체크포인트',zh:'检查点',en:'Checkpoint'},
+  predict:{ko:'예측',zh:'预测',en:'Prediction'},
+  key:{ko:'핵심',zh:'要点',en:'KEY IDEA'},
+  right:{ko:'정답!',zh:'答对了！',en:'Correct!'},
+  wrong:{ko:'다시 생각해 보세요. 화면과 그래프를 다시 보세요.',zh:'再想一想，回头看看画面和图表。',en:'Not quite. Look at the screen and the chart again.'},
+  recorded:{ko:'예측을 기록했습니다. 이제 실행해 보세요.',zh:'预测已记录，现在来运行吧。',en:'Prediction recorded. Now run it.'},
+  clear:{ko:'단계 완료!',zh:'过关！',en:'STAGE CLEAR!'},
+  busy:{ko:'실행 중…',zh:'运行中…',en:'Running…'},
+};
+const CH=[
+  {n:1,color:'var(--c1)',name:{ko:'1장 · 소문 공장',zh:'第1章 · 谣言工厂',en:'CH1 · Rumor Mill'}},
+  {n:2,color:'var(--c2)',name:{ko:'2장 · 강 하나, 두 동네',zh:'第2章 · 一条河，两个街区',en:'CH2 · Two Sides of Town'}},
+  {n:3,color:'var(--c3)',name:{ko:'3장 · 기본값 직업',zh:'第3章 · 默认的职业',en:'CH3 · The Default Job'}},
+  {n:4,color:'var(--c4)',name:{ko:'마무리 · 고치기',zh:'收尾 · 修复',en:'FINALE · Fix It'}},
+];
+
+/* =========================================================
+   STATE + STORAGE
+   ========================================================= */
+const KEY='looptown_pubs279_w06_v1';
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(PROG)); }catch(e){} }
+const PROG=Object.assign({done:{},quiz:{},pred:{},refl:{},data:{},lang:'ko',withEn:true,name:'',sid:'',started:false}, load()||{});
+const UNLOCK_ALL=/[?&]all\b/.test(location.search);
+let cur=0; const ST={};
+const rnd=Math.random;
+function pct(a,b){ return b? Math.round(a/b*100):0; }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function binom(n,p){ n=Math.round(n); if(n<=0) return 0; if(n<60){let k=0;for(let i=0;i<n;i++) if(rnd()<p)k++;return k;} let g=0; for(let i=0;i<6;i++) g+=rnd(); g=(g-3)*Math.SQRT2; return clamp(Math.round(n*p+Math.sqrt(n*p*(1-p))*g),0,n); }
+function hr(a,b,c,d){ let h=Math.imul(a^0x9e3779b9,0x85ebca6b)^Math.imul(b+0x632be5ab,0xc2b2ae35)^Math.imul(c+0x27d4eb2f,0x165667b1)^Math.imul(d+0x3c6ef372,0xd3a2646c); h^=h>>>15; h=Math.imul(h,0x2c1b3c6d); h^=h>>>12; h=Math.imul(h,0x297a2d39); h^=h>>>15; return (h>>>0)/4294967296; }
+function mulberry(a){ return function(){ a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296; }; }
+
+/* =========================================================
+   PIXEL DRAWING
+   ========================================================= */
+const SC=document.getElementById('scene').getContext('2d');
+const CC=document.getElementById('chart').getContext('2d');
+SC.imageSmoothingEnabled=false; CC.imageSmoothingEnabled=false;
+let G=SC;
+function px(x,y,w,h,c){ G.fillStyle=c; G.fillRect(Math.round(x),Math.round(y),w,h); }
+function line(x0,y0,x1,y1,c,t=1){ x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1); const dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1; let e=dx+dy; G.fillStyle=c; for(let k=0;k<2000;k++){ G.fillRect(x0,y0,t,t); if(x0===x1&&y0===y1)break; const e2=2*e; if(e2>=dy){e+=dy;x0+=sx;} if(e2<=dx){e+=dx;y0+=sy;} } }
+const F={A:'010101111101101',B:'110101110101110',C:'011100100100011',D:'110101101101110',E:'111100110100111',F:'111100110100100',G:'011100101101011',H:'101101111101101',I:'111010010010111',J:'001001001101010',K:'101101110101101',L:'100100100100111',M:'101111111101101',N:'110101101101101',O:'010101101101010',P:'110101110100100',Q:'010101101110011',R:'110101110101101',S:'011100010001110',T:'111010010010010',U:'101101101101111',V:'101101101101010',W:'101101111111101',X:'101101010101101',Y:'101101010010010',Z:'111001010100111',
+'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001111',
+' ':'000000000000000','!':'010010010000010','?':'111001011000010','.':'000000000000010',',':'000000000010100',':':'000010000010000','-':'000000111000000','+':'000010111010000','%':'101001010100101','/':'001001010100100','(':'010100100100010',')':'010001001001010','=':'000111000111000','>':'100010001010100','<':'001010100010001','#':'101111101111101',"'":'010010000000000','"':'101101000000000','&':'010101010101011','*':'000101010101000','v':'000001101010000','^':'010101000000000'};
+function tt(s,x,y,c,sc=1,al='left'){ s=String(s); s=s.replace(/[a-uw-z]/g,ch=>ch.toUpperCase()); const w=s.length*4*sc-sc; if(al==='center')x-=Math.floor(w/2); if(al==='right')x-=w; G.fillStyle=c; for(const ch of s){ const g=F[ch]||F['?']; for(let j=0;j<5;j++)for(let i=0;i<3;i++) if(g[j*3+i]==='1') G.fillRect(Math.round(x+i*sc),Math.round(y+j*sc),sc,sc); x+=4*sc; } }
+function spr(rows,x,y,map,s=1){ for(let j=0;j<rows.length;j++){ const r=rows[j]; for(let i=0;i<r.length;i++){ const ch=r[i]; if(ch==='.')continue; const c=map[ch]; if(!c)continue; G.fillStyle=c; G.fillRect(Math.round(x+i*s),Math.round(y+j*s),s,s);} } }
+const KIND={mint:{B:'#7fe0c0',D:'#3fa88a'},peach:{B:'#ffb38a',D:'#d9784a'}};
+const BLOB=["..OOOOO..",".OBBBBBO.","OBBBBBBBO","OBEBBBEBO","OBEBBBEBO","OCBBMBBCO","OBBBBBBBO",".OBBBBBO.","..OO.OO.."];
+function blob(x,y,kind,o={}){
+  const k=KIND[kind]; let yy=y+(o.jump?-2:0)+(o.bob!=null?Math.round(Math.sin(o.bob)*0.6):0);
+  const map={O:'#1d2b53',B:k.B,E:o.bel?'#b0207a':'#1d2b53',C:'#ff77a8',M:o.frown?'#1d2b53':'#7e2553'};
+  if(o.blink) map.E=k.B;
+  spr(BLOB,x,yy,map,o.s||1);
+  const s=o.s||1;
+  if(kind==='mint'){ px(x+4*s,yy-1*s,s,s,'#008751'); px(x+3*s,yy-2*s,s,s,'#00c060'); px(x+5*s,yy-2*s,s,s,'#00c060'); }
+  else { px(x+3*s,yy-1*s,s,s,'#e8204e'); px(x+5*s,yy-1*s,s,s,'#e8204e'); px(x+4*s,yy-1*s,s,s,'#7e2553'); }
+  if(o.bel){ const t=performance.now()/200; for(let i=0;i<3;i++){ const a=t+i*2.1; px(x+4+Math.cos(a)*7,yy+4+Math.sin(a)*6,1,1,'#ff77a8'); } }
+}
+function bubble(x,y,g,bg,fg){ px(x,y,7,7,'#1d2b53'); px(x+1,y+1,5,5,bg); px(x+2,y+7,2,1,'#1d2b53'); tt(g,x+2,y+1,fg,1); }
+function face(x,y,kind,mood){ // 5x5 mini face
+  px(x,y,5,5,'#1d2b53'); px(x+1,y,3,5,KIND[kind].B); px(x,y+1,5,3,KIND[kind].B);
+  px(x+1,y+1,1,1,'#1d2b53'); px(x+3,y+1,1,1,'#1d2b53');
+  if(mood>60){ px(x+1,y+3,1,1,'#7e2553'); px(x+3,y+3,1,1,'#7e2553'); px(x+2,y+4,1,1,'#7e2553'); }
+  else if(mood>35){ px(x+1,y+3,3,1,'#7e2553'); }
+  else { px(x+2,y+3,1,1,'#7e2553'); px(x+1,y+4,1,1,'#7e2553'); px(x+3,y+4,1,1,'#7e2553'); }
+}
+function thought(x,y,kind,mood){ px(x,y,9,9,'#1d2b53'); px(x+1,y+1,7,7,'#fff8ef'); face(x+2,y+2,kind,mood); px(x+2,y+10,2,1,'#fff8ef'); px(x+1,y+12,1,1,'#fff8ef'); }
+const BOT=["...R...","..OOO..",".OGGGO.","OGWGWGO","OGGGGGO",".OOOOO.",".O...O.","OO...OO"];
+function bot(x,y,t){ spr(BOT,x,y,{R:(Math.floor(t/250)%2)?'#e8204e':'#29adff',O:'#1d2b53',G:'#c2c3c7',W:'#29adff'}); }
+const PORT=["...YYYY...","..YYYYYY..",".YYHHHHYY.","..OBBBBO..","..BEBBEB..","..BBBBBB..","..BCBBCB..","...BMMB...","..OSSSSO..",".OSSSSSSO.","OSSSSSSSSO","OSSSSSSSSO"];
+function portrait(x,y,kind,s=1,dim=false){ const k=KIND[kind]; spr(PORT,x,y,{Y:'#ffec27',H:'#ffa300',O:'#1d2b53',B:k.B,E:'#1d2b53',C:'#ff77a8',M:'#7e2553',S:dim?'#5f6b8f':'#29adff'},s); }
+function heart(x,y){ spr([".P.P.","PPPPP","PPPPP",".PPP.","..P.."],x,y,{P:'#e8204e'}); }
+function house(x,y,roof){ px(x,y+5,14,9,'#fff1e8'); px(x,y+5,14,1,'#1d2b53'); for(let i=0;i<7;i++) px(x+i,y+5-i*0.7,14-2*i,1,roof); px(x+5,y+9,4,5,'#ab5236'); px(x+1,y+8,3,3,'#29adff'); px(x+10,y+8,3,3,'#29adff'); }
+function townBG(){
+  px(0,0,320,180,'#8fd18a');
+  for(let i=0;i<90;i++){ const x=(i*73)%320, y=26+((i*41)%152); px(x,y,2,1,'#73bd6e'); }
+  for(let r=0;r<4;r++) px(0,47+r*35,320,3,'#e9d3a0');
+  for(let i=0;i<22;i++){ const x=(i*97+13)%316, y=28+((i*53)%148); px(x,y,1,1,['#ff77a8','#ffec27','#fff1e8'][i%3]); }
+}
+function billboard(head,day){ px(0,0,320,22,'#1d2b53'); px(0,22,320,2,'#ff77a8'); px(5,4,9,14,'#fff1e8'); px(6,5,7,10,'#ff77a8'); px(8,16,3,1,'#1d2b53'); tt(head||'',20,6,'#fff1e8',2); if(day!=null) tt('DAY '+day,314,6,'#ffec27',2,'right'); }
+
+/* =========================================================
+   CHARTS (pixel style)
+   ========================================================= */
+const CX0=28,CY0=8,CW=284,CH_=92;
+function chartFrame(yMax,ticks,yUnit){ px(0,0,320,120,'#fff8ef'); for(const t of ticks){ const y=CY0+CH_-Math.round(t/yMax*CH_); for(let x=CX0;x<CX0+CW;x+=4) px(x,y,2,1,'#e3d6c6'); tt(String(t)+(yUnit||''),CX0-3,y-2,'#6b6259',1,'right'); } px(CX0,CY0,1,CH_+1,'#1d2b53'); px(CX0,CY0+CH_,CW,1,'#1d2b53'); }
+function chartLine(o){
+  G=CC; const yMax=o.yMax||100; chartFrame(yMax,o.ticks||[0,25,50,75,100],o.unit==null?'%':o.unit);
+  for(const h of (o.hlines||[])){ const y=CY0+CH_-Math.round(h.v/yMax*CH_); for(let x=CX0;x<CX0+CW;x+=6) px(x,y,3,1,h.color); tt(h.label,CX0+CW-2,y-7,h.color,1,'right'); }
+  tt(o.xLabel||'DAY',CX0+CW,CY0+CH_+4,'#6b6259',1,'right'); tt('0',CX0,CY0+CH_+4,'#6b6259',1,'center'); tt(String(o.xMax),CX0+CW-26,CY0+CH_+4,'#6b6259',1,'right');
+  for(const s of o.series){ let p=null; s.data.forEach((v,i)=>{ const x=CX0+Math.round(i/o.xMax*CW), y=CY0+CH_-Math.round(clamp(v,0,yMax)/yMax*CH_); if(p) line(p[0],p[1],x,y,s.color,2); px(x-1,y-1,3,3,s.color); p=[x,y]; }); }
+  if(o.empty && !o.series.length) tt(o.empty,CX0+CW/2,CY0+CH_/2-3,'#b0a698',1,'center');
+  G=SC;
+}
+function chartBars(bars,o={}){
+  G=CC; const yMax=o.yMax||100; chartFrame(yMax,o.ticks||[0,25,50,75,100],o.unit==null?'%':o.unit);
+  for(const h of (o.hlines||[])){ const y=CY0+CH_-Math.round(h.v/yMax*CH_); for(let x=CX0;x<CX0+CW;x+=6) px(x,y,3,1,h.color); tt(h.label,CX0+CW-2,y-7,h.color,1,'right'); }
+  const n=bars.length||1, slot=Math.floor(CW/n), bw=Math.min(44,slot-12);
+  bars.forEach((b,i)=>{ const x=CX0+i*slot+Math.floor((slot-bw)/2); const hh=Math.round(clamp(b.v,0,yMax)/yMax*CH_); px(x,CY0+CH_-hh,bw,hh,b.color); px(x,CY0+CH_-hh,bw,1,'#1d2b53'); tt(b.label,x+bw/2,CY0+CH_+4,'#1d2b53',1,'center'); tt(b.text!=null?b.text:String(Math.round(b.v)),x+bw/2,CY0+CH_-hh-7,'#1d2b53',1,'center'); });
+  G=SC;
+}
+function legend(items){ INLINE=true; const h=(items||[]).map(it=>`<span class="item"><i style="background:${it.color}"></i><span>${L(it.label)}</span></span>`).join(''); INLINE=false; const e=document.getElementById('legend'); if(e._h!==h){ e.innerHTML=h; e._h=h; } }
+
+/* =========================================================
+   TOWN MODEL (Chapter 1)
+   ========================================================= */
+const NAMES=['Momo','Bao','Lulu','Pip','Kiki','Taro','Nori','Yuzu','Coco','Tofu','Bibi','Dodo','Fifi','Gogo','Hana','Ito','Jojo','Koko','Lemi','Mimi','Nana','Olli','Pomi','Quin','Riri','Sumi','Tutu','Umi','Vivi','Wawa','Xixi','Yoyo','Zuzu','Ari','Bubu','Cici','Didi','Eno','Fufu','Gigi'];
+const HELLO=[
+ {ko:'안녕! 난 아침 먹기 전에 버즈부터 봐.',zh:'嗨！我吃早饭前先刷 Buzz。',en:'Hi! I check Buzz before breakfast.'},
+ {ko:'난 맨 위 글만 읽어. 바쁘거든.',zh:'我只看置顶的那条，太忙了。',en:'I only read the top post. Who has time?'},
+ {ko:'맨 위에 있으면 많이들 좋아했다는 거잖아?',zh:'能排第一，说明很多人喜欢吧？',en:"If it's on top, lots of people liked it, right?"},
+ {ko:'난 끝까지 읽기 전에 공유부터 해.',zh:'我还没读完就先转发了。',en:'I share things before I finish reading them.'},
+ {ko:'버즈는 우리 고양이보다 나를 더 잘 알아.',zh:'Buzz 比我家猫还懂我。',en:'Buzz knows me better than my cat does.'},
+ {ko:'모퉁이 빵집 모찌 정말 좋아!',zh:'我超爱街角面包店的麻糬！',en:'I love the mochi from the corner bakery!'},
+ {ko:'순찰 로봇? 우릴 지켜 주는 거겠지.',zh:'巡逻机器人？应该是在保护我们吧。',en:'Patrol bots? They keep us safe, I guess.'},
+ {ko:'난 커서 엔지니어가 될 거야!',zh:'我长大要当工程师！',en:'I want to be an engineer when I grow up!'},
+];
+const POST={
+  R:{id:'R',click:.35,acc:0,head:'MOCHI MADE OF SLIME?!'},
+  T:{id:'T',click:.10,acc:1,head:'NEW SESAME MOCHI TODAY'},
+  C:{id:'C',click:.08,acc:1,from:2,head:'BAKERY: NO SLIME, PROMISE'},
+};
+function makeTown(seed){
+  const res=[],adj=[];
+  for(let r=0;r<4;r++)for(let c=0;c<10;c++){ const i=r*10+c; res.push({i,x:12+c*30+(r%2?7:0),y:37+r*35,kind:((c*7+r*3)%5<2)?'peach':'mint',name:NAMES[i],E:{},clk:{},bel:false,fl:-9999,flc:null,ph:(i*1.7)%6.28,show:null}); adj.push([]); }
+  const link=(a,b)=>{ if(a===b||adj[a].includes(b))return; adj[a].push(b); adj[b].push(a); };
+  for(let r=0;r<4;r++)for(let c=0;c<10;c++){ const i=r*10+c; if(c<9)link(i,i+1); if(r<3)link(i,i+10); }
+  for(let i=0;i<40;i+=3) link(i,(i*17+11)%40);
+  const links=[]; adj.forEach((a,i)=>a.forEach(j=>{ if(j>i) links.push([i,j]); }));
+  const T={res,adj,links,day:0,clicks:{},pending:[],hist:[],seed:(seed!=null?seed:(Math.random()*1e9|0))};
+  return T;
+}
+function townStats(T){ const n=T.res.length; return {heard:pct(T.res.filter(r=>r.E.R>0).length,n),bel:pct(T.res.filter(r=>r.bel).length,n),sawC:pct(T.res.filter(r=>r.E.C>0).length,n)}; }
+function seedRumor(T){ for(const i of [13,26]){ const r=T.res[i]; r.E.R=1; r.clk.R=1; T.pending.push([r,POST.R]); } T.clicks.R=2; T.hist=[townStats(T)]; }
+function townDay(T,P){
+  T.day++; const out=[]; const now=performance.now();
+  const PC={R:1,T:2,C:3}; const ex=(r,p)=>{ r.E[p.id]=(r.E[p.id]||0)+1; r.fl=now; r.flc=p.id; if(!r.clk[p.id] && hr(T.seed,0,r.i,20+PC[p.id])<p.click){ r.clk[p.id]=1; T.clicks[p.id]=(T.clicks[p.id]||0)+1; out.push([r,p]); } };
+  const sp=P.shareP*(P.friction?0.4:1);
+  for(const [r,p] of T.pending) for(const j of T.adj[r.i]) if(hr(T.seed,T.day,r.i*64+j,PC[p.id])<sp) ex(T.res[j],p);
+  for(const p of P.posts){
+    if((p.from||1)>T.day) continue;
+    const boost=Math.min(1,(1+(T.clicks[p.id]||0))/P.ramp);
+    let reach=P.base*(P.w*boost*(p.click/0.35)+(1-P.w)*p.acc);
+    if(P.pin && p.id==='C') reach=Math.max(reach,0.5);
+    for(const r of T.res){ const seen=(r.E[p.id]||0)>0; if(seen && !P.repeat) continue; if(hr(T.seed,T.day,r.i,10+PC[p.id])<reach*(seen?0.7:1)) ex(r,p); }
+  }
+  T.pending=out;
+  for(const r of T.res){ if(!r.bel && (r.E.R||0)>=3 && !(r.E.C>0)) r.bel=true; }
+  T.hist.push(townStats(T));
+}
+function topPost(T,P){ const ps=P.posts.filter(p=>(p.from||1)<=Math.max(1,T.day)); let best=null,bs=-1; for(const p of ps){ const boost=Math.min(1,(1+(T.clicks[p.id]||0))/P.ramp); const s=P.w*boost*(p.click/0.35)+(1-P.w)*p.acc+(P.pin&&p.id==='C'?5:0); if(s>bs){bs=s;best=p;} } return best; }
+function drawTown(T,o={}){
+  townBG(); const t=performance.now();
+  if(o.links) for(const [a,b] of T.links){ const A=T.res[a],B=T.res[b]; const hot=(A.E.R>0&&B.E.R>0); line(A.x+4,A.y+4,B.x+4,B.y+4,hot?'#c77ab8':'#76bb70'); }
+  billboard(o.head,o.day);
+  for(const r of T.res){
+    const fresh=t-r.fl<450;
+    blob(r.x,r.y,r.kind,{bob:t/320+r.ph,bel:r.bel,jump:fresh});
+    const bx=r.x+1,by=r.y-11;
+    if(o.mode==='hello'){ if(r.show) bubble(bx,by,'v','#fff8ef','#e8204e'); }
+    else if(o.mode==='clicks'){ if(r.show==='R') bubble(bx,by,'!','#ff77a8','#1d2b53'); else if(r.show==='T') bubble(bx,by,'v','#fff8ef','#008751'); }
+    else if(o.counts){ const c=r.E.R||0; if(c>0) bubble(bx,by,String(Math.min(c,9)),r.bel?'#7e2553':'#fff8ef',r.bel?'#fff8ef':'#7e2553'); }
+    else if(r.bel) bubble(bx,by,'!','#7e2553','#fff8ef');
+    else if(r.E.R>0) bubble(bx,by,'!','#fff8ef','#7e2553');
+    else if(r.E.C>0||r.E.T>0) bubble(bx,by,'v','#fff8ef','#008751');
+    if(fresh){ const c=r.flc==='R'?'#ff77a8':'#00c060'; px(r.x-2,r.y-1,1,1,c); px(r.x+10,r.y-1,1,1,c); px(r.x-2,r.y+9,1,1,c); px(r.x+10,r.y+9,1,1,c); }
+  }
+}
+
+/* =========================================================
+   RUN HELPER (animated steps)
+   ========================================================= */
+let RUN=null;
+function play(n,ms,step,done){ stopPlay(); let i=0; RUN=setInterval(()=>{ try{ step(i); }catch(e){ console.error(e); } i++; refresh(); if(i>=n){ stopPlay(); done&&done(); refresh(); } },ms); refresh(); }
+function stopPlay(){ if(RUN){ clearInterval(RUN); RUN=null; } }
+
+/* =========================================================
+   UI HELPERS
+   ========================================================= */
+function el(tag,cls,html){ const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+function btn(label,fn,cls=''){ const b=el('button','pbtn '+cls,L(label)); b.onclick=()=>{ if(RUN)return; fn(b); refresh(); }; b.dataset.run='1'; return b; }
+function row(...k){ const r=el('div','row'); k.forEach(x=>x&&r.appendChild(x)); return r; }
+function slider(label,min,max,step,val,fmt,on,ends){ const w=el('div','slider'); w.innerHTML=`<div class="row" style="justify-content:space-between"><span class="lab">${L(label)}</span><span class="val"></span></div>`; const inp=el('input'); inp.type='range'; inp.min=min; inp.max=max; inp.step=step; inp.value=val; const v=w.querySelector('.val'); v.textContent=fmt(+val); inp.oninput=()=>{ v.textContent=fmt(+inp.value); on(+inp.value); refresh(); }; w.appendChild(inp); if(ends) w.appendChild(el('div','ends',`<span>${L(ends[0])}</span><span>${L(ends[1])}</span>`)); return w; }
+function seg(opts,val,on){ const w=el('div','seg'); opts.forEach(o=>{ const b=el('button',o.v===val?'on':'',L(o.label)); b.onclick=()=>{ if(RUN)return; [...w.children].forEach(c=>c.classList.remove('on')); b.classList.add('on'); on(o.v); refresh(); }; w.appendChild(b); }); return w; }
+function toast(msg){ const t=document.getElementById('toast'); t.innerHTML=msg; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display='none',1600); }
+const COLORS=['#7e2553','#29adff','#ffa300','#00a050','#e8204e'];
+
+/* =========================================================
+   STAGES
+   ========================================================= */
+const STAGES=[];
+function S(def){ STAGES.push(def); }
+
+/* ---------- 1 ---------- */
+S({ch:0,
+ title:{ko:'루프 타운에 오신 것을 환영합니다',zh:'欢迎来到循环镇',en:'Welcome to Loop Town'},
+ story:{ko:'루프 타운에는 주민 40명이 삽니다. 새싹을 단 <b>민트</b> 주민과 리본을 단 <b>피치</b> 주민입니다. 모두가 마을의 유일한 피드 앱 <b>버즈(Buzz)</b>를 봅니다. 버즈의 규칙은 하나뿐입니다. <b>가장 많이 클릭된 글을 맨 위에 올린다.</b>',
+        zh:'循环镇住着40位居民：头顶小芽的<b>薄荷</b>居民和戴蝴蝶结的<b>蜜桃</b>居民。大家都用镇上唯一的信息流应用 <b>Buzz</b>。Buzz 只有一条规则：<b>谁的点击最多，谁就排在最上面。</b>',
+        en:'Forty residents live in Loop Town: round <b>Mint</b> folk with a sprout and <b>Peach</b> folk with a bow. Everyone reads <b>Buzz</b>, the town\'s only feed app. Buzz has one simple rule: <b>whatever gets clicked the most goes on top.</b>'},
+ task:{ko:'화면 속 주민 세 명을 클릭해 인사해 보세요.',zh:'点击画面中的三位居民，和他们打个招呼。',en:'Click three residents on the screen to say hi.'},
+ init(s){ s.T=makeTown(); s.met=new Set(); s.last=null; },
+ click(s,x,y){ for(const r of s.T.res){ if(x>=r.x-2&&x<=r.x+11&&y>=r.y-3&&y<=r.y+11){ r.show=true; r.fl=performance.now(); r.flc='T'; s.met.add(r.i); s.last=r; refresh(); return; } } },
+ draw(s){ drawTown(s.T,{mode:'hello',head:'BUZZ: CLICKS = TOP'}); },
+ chart(s){ chartBars([{label:'MET',v:s.met.size,color:'#ff77a8',text:s.met.size+'/3'}],{yMax:3,ticks:[0,1,2,3],unit:''}); legend([{color:'#ff77a8',label:{ko:'만난 주민 수',zh:'已打招呼的居民',en:'Residents met'}}]); },
+ readout(s){ if(!s.last) return ''; const h=HELLO[s.last.i%HELLO.length]; return `<div class="card"><b class="pix" style="font-size:11px">${s.last.name}</b> (${L(s.last.kind==='mint'?{ko:'민트',zh:'薄荷',en:'Mint'}:{ko:'피치',zh:'蜜桃',en:'Peach'})})<br>“${L(h)}”</div>`; },
+ done(s){ return s.met.size>=3; },
+ quiz:{q:{ko:'버즈는 무엇을 보고 맨 위에 올릴 글을 정하나요?',zh:'Buzz 根据什么决定哪条帖子置顶？',en:'What does Buzz use to decide which post goes on top?'},
+  opts:[{ko:'내용이 사실인지 아닌지',zh:'内容是否属实',en:'Whether the post is true'},{ko:'얼마나 클릭됐는지',zh:'获得多少点击',en:'How many clicks it gets'},{ko:'누가 쓴 글인지',zh:'是谁发的帖子',en:'Who wrote the post'},{ko:'얼마나 최근 글인지',zh:'发布时间有多新',en:'How recent the post is'}],a:1,
+  why:{ko:'버즈는 클릭만 셉니다. 사실 여부·작성자·시간은 규칙에 없습니다.',zh:'Buzz 只数点击。真假、作者、时间都不在规则里。',en:'Buzz counts clicks only. Truth, author, and time are not in the rule.'}},
+ key:{ko:'참여도(클릭)로 순위를 매기는 피드는 사실인 글이 아니라 <b>눈길을 끄는 글</b>에 보상합니다. 규칙 자체는 중립적으로 보입니다 — 진실도, 어떤 집단도 언급하지 않으니까요.',zh:'按参与度（点击）排序的信息流，奖励的是<b>吸引眼球的内容</b>，而不是真实的内容。规则本身看起来很中立——它既不提真假，也不提任何群体。',en:'An engagement-ranked feed rewards what <b>grabs attention</b>, not what is true. The rule looks neutral: it never mentions truth or any group.'}
+});
+
+/* ---------- 2 ---------- */
+S({ch:0,
+ title:{ko:'자극이 지루함을 이긴다',zh:'刺激战胜无聊',en:'Shocking Beats Boring'},
+ story:{ko:'같은 날 아침 글 두 개가 올라옵니다. 빵집은 사실이지만 밋밋한 소식을 올립니다. <i>“오늘 참깨 모찌 나왔어요.”</i> 다른 누군가는 소문을 올립니다. <i>“그 빵집 모찌, 슬라임으로 만든대?!”</i> 아무도 확인하지 않았습니다.',
+        zh:'同一天早上出现了两条帖子。面包店发了一条真实但平淡的消息：<i>“今天新出芝麻麻糬。”</i>另一个人发了一条谣言：<i>“那家面包店的麻糬是用史莱姆做的？！”</i>没有人核实过。',
+        en:'Two posts appear on the same morning. The bakery posts a true but boring update: <i>“New sesame mochi today.”</i> Someone else posts a rumor: <i>“The bakery\'s mochi is made of slime?!”</i> Nobody has checked it.'},
+ task:{ko:'두 글을 모두에게 똑같이 보여 주며 이틀을 실행하고 클릭 수를 지켜보세요.',zh:'把两条帖子同样展示给所有人，运行两天，观察点击数。',en:'Show both posts to everyone equally for two days. Watch the click counters.'},
+ init(s){ s.T=makeTown(); s.c={R:0,T:0}; s.days=0; s.hist={R:[0],T:[0]}; },
+ ui(s,box){ box.appendChild(row(btn({ko:'하루 실행',zh:'运行一天',en:'Run one day'},()=>{ play(1,10,()=>{ s.days++; const now=performance.now(); for(const r of s.T.res){ r.show=null; const a=rnd()<POST.R.click, b=rnd()<POST.T.click; if(a){s.c.R++; r.show='R'; r.fl=now; r.flc='R';} if(b){s.c.T++; if(!a){r.show='T'; r.fl=now; r.flc='T';}} } s.hist.R.push(s.c.R); s.hist.T.push(s.c.T); }); }), btn({ko:'다시 시작',zh:'重新开始',en:'Reset'},()=>{ this.init(s); },'alt'))); },
+ draw(s){ const head = s.days===0?'TWO NEW POSTS':(s.c.R>=s.c.T?POST.R.head:POST.T.head); drawTown(s.T,{mode:'clicks',head,day:s.days}); },
+ chart(s){ chartLine({series:[{data:s.hist.R,color:'#ff77a8'},{data:s.hist.T,color:'#00a050'}],xMax:Math.max(3,s.days),yMax:40,ticks:[0,10,20,30,40],unit:'',xLabel:'DAY'}); legend([{color:'#ff77a8',label:{ko:'소문 글 클릭(누적)',zh:'谣言帖点击（累计）',en:'Rumor clicks (total)'}},{color:'#00a050',label:{ko:'빵집 소식 클릭(누적)',zh:'面包店消息点击（累计）',en:'Bakery news clicks (total)'}}]); },
+ readout(s){ return `<div class="card">💬 <b>${L({ko:'소문',zh:'谣言',en:'Rumor'})}</b>: <span class="big">${s.c.R}</span> &nbsp; 🍡 <b>${L({ko:'빵집 소식',zh:'面包店消息',en:'Bakery news'})}</b>: <span class="big">${s.c.T}</span></div>`; },
+ done(s){ return s.days>=2; },
+ quiz:{q:{ko:'버즈는 클릭으로 순위를 매깁니다. 내일은 어느 글이 맨 위에 오를까요?',zh:'Buzz 按点击排序。明天哪条帖子会置顶？',en:'Buzz ranks by clicks. Which post goes on top tomorrow?'},
+  opts:[{ko:'슬라임 모찌 소문 글',zh:'史莱姆麻糬的谣言',en:'The rumor about slime mochi'},{ko:'빵집의 실제 소식 글',zh:'面包店的真实消息',en:"The bakery's real news post"},{ko:'두 글이 나란히',zh:'两条并排显示',en:'Both posts, side by side'},{ko:'더 늦게 올라온 글',zh:'较晚发布的那条',en:'Whichever was posted last'}],a:0,
+  why:{ko:'같은 조건으로 보여 줘도 소문이 약 3배 더 클릭됩니다. 클릭만 보는 규칙에서는 소문이 이깁니다.',zh:'即使展示条件相同，谣言的点击也约是消息的3倍。只看点击的规则下，谣言胜出。',en:'Shown equally, the rumor gets about three times the clicks. Under a clicks-only rule, the rumor wins.'}},
+ key:{ko:'자극적이고 감정을 건드리는 글은 정확한 글보다 클릭을 더 받는 경향이 있습니다. 클릭만 세는 규칙은 둘을 구별하지 못하고 <b>‘승자’만</b> 봅니다.',zh:'刺激、煽情的内容往往比准确的内容获得更多点击。只数点击的规则无法区分二者，它只看到<b>“赢家”</b>。',en:'Shocking, emotional posts tend to get more clicks than accurate ones. A rule that counts only clicks cannot tell the difference; it just sees <b>a winner</b>.'}
+});
+
+/* ---------- 3 ---------- */
+function rumorRun(s,P,days,label,color,after){
+  s.T=makeTown(s.seed); seedRumor(s.T); s.P=P; const ser={data:[s.T.hist[0][s.metric||'heard']],color,label};
+  s.series.push(ser); if(s.series.length>3) s.series.shift();
+  play(days,420,()=>{ townDay(s.T,P); ser.data.push(s.T.hist[s.T.hist.length-1][s.metric||'heard']); },()=>after&&after(ser));
+}
+S({ch:0,
+ title:{ko:'다이얼을 돌려라',zh:'转动旋钮',en:'Turn the Dial'},
+ story:{ko:'이제 <b>여러분</b>이 버즈를 설계합니다. 다이얼은 순위를 매길 때 <b>클릭</b>과 <b>정확성</b> 중 무엇을 얼마나 중시할지 정합니다. 100%면 클릭만, 0%면 정확성만 봅니다. 순위가 높은 글은 더 많은 사람에게 보이고, 사람들은 클릭한 글을 이웃에게 공유합니다.',
+        zh:'现在由<b>你</b>来设计 Buzz。旋钮决定排序时<b>点击</b>与<b>准确性</b>各占多少比重。100% 表示只看点击，0% 表示只看准确性。排名越高的帖子被越多人看到，人们还会把点过的帖子分享给邻居。',
+        en:'Now <b>you</b> design Buzz. The dial sets how much the ranking cares about <b>clicks</b> versus <b>accuracy</b>. At 100%, only clicks count; at 0%, only accuracy counts. Top-ranked posts reach more people, and people share what they click with their neighbors.'},
+ task:{ko:'클릭 비중 80% 이상으로 한 번, 30% 이하로 한 번, 각각 6일씩 실행해 두 선을 비교하세요.',zh:'点击比重≥80% 运行一次，≤30% 再运行一次，各6天，比较两条线。',en:'Run 6 days twice: once with clicks at 80% or more, once at 30% or less. Compare the lines.'},
+ init(s){ s.w=1; s.series=[]; s.runs=[]; s.seed=Math.random()*1e9|0; s.T=makeTown(s.seed); seedRumor(s.T); s.P={w:1,posts:[POST.R,POST.T],base:.35,ramp:10,shareP:.45,repeat:true}; },
+ ui(s,box){
+  box.appendChild(slider({ko:'순위에서 클릭 비중',zh:'排序中点击的比重',en:'Weight on clicks in the ranking'},0,1,.1,s.w,v=>Math.round(v*100)+'%',v=>s.w=v,[{ko:'정확성만',zh:'只看准确性',en:'accuracy only'},{ko:'클릭만',zh:'只看点击',en:'clicks only'}]));
+  box.appendChild(row(btn({ko:'6일 실행',zh:'运行6天',en:'Run 6 days'},()=>{ const w=s.w; rumorRun(s,{w,posts:[POST.R,POST.T],base:.35,ramp:10,shareP:.45,repeat:true},6,{ko:`클릭 ${Math.round(w*100)}%`,zh:`点击 ${Math.round(w*100)}%`,en:`clicks ${Math.round(w*100)}%`},COLORS[s.runs.length%5],ser=>{ s.runs.push({w,heard:ser.data[ser.data.length-1]}); }); })));
+ },
+ draw(s){ const p=topPost(s.T,s.P); drawTown(s.T,{head:'#1 '+(p?p.head:''),day:s.T.day}); },
+ chart(s){ chartLine({series:s.series,xMax:6}); legend(s.series.map(x=>({color:x.color,label:{ko:x.label.ko+' · 소문 들은 비율',zh:x.label.zh+' · 听过谣言的比例',en:x.label.en+' · heard rumor'}}))); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${L({ko:'클릭',zh:'点击',en:'clicks'})} ${Math.round(r.w*100)}% → ${L({ko:'6일 뒤 소문 들은 주민',zh:'6天后听过谣言的居民',en:'heard the rumor after 6 days'})}: <b>${r.heard}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.w>=.8)&&s.runs.some(r=>r.w<=.3); },
+ quiz:{q:{ko:'클릭 비중을 낮추자 소문은 어떻게 되었나요?',zh:'降低点击比重后，谣言怎么样了？',en:'When you lowered the weight on clicks, what happened to the rumor?'},
+  opts:[{ko:'더 많은 사람에게 퍼졌다',zh:'传给了更多人',en:'It reached more people'},{ko:'아무런 변화가 없었다',zh:'完全没有变化',en:'Nothing changed at all'},{ko:'더 적은 사람에게 퍼졌다',zh:'传给了更少的人',en:'It reached fewer people'},{ko:'버즈에서 아예 삭제되었다',zh:'被 Buzz 删除了',en:'It was deleted from Buzz'}],a:2,
+  why:{ko:'소문은 지워지지 않았습니다. 순위가 내려가 덜 보였을 뿐입니다. 이웃 공유로는 여전히 퍼집니다.',zh:'谣言没有被删除，只是排名下降、曝光减少。它仍会通过邻居分享传播。',en:'The rumor was not deleted. It just ranked lower and was seen less. It still spreads through neighbors.'}},
+ key:{ko:'시스템이 무엇을 최적화할지는 사람이 내린 <b>설계 선택</b>입니다. “알고리즘이 그랬다”는 말은 다이얼을 누가 맞췄는지를 가립니다.',zh:'系统优化什么，是人做出的<b>设计选择</b>。“是算法干的”这句话，掩盖了是谁拧的旋钮。',en:'What a system optimizes is a <b>design choice</b> made by people. “The algorithm did it” hides who set the dial.'}
+});
+
+/* ---------- 4 ---------- */
+S({ch:0,quizFirst:true,
+ title:{ko:'연쇄 확산',zh:'连锁扩散',en:'The Cascade'},
+ story:{ko:'선은 누가 누구와 이야기하는지 보여 줍니다. 소문은 주민 <b>두 명</b>에게서 시작합니다. 클릭이 늘면 순위가 오르고, 순위가 오르면 보는 사람이 늘고, 보는 사람이 늘면 클릭이 또 늡니다.',
+        zh:'连线表示谁和谁在交流。谣言从<b>两位</b>居民开始。点击增加→排名上升→看到的人增加→点击又增加。',
+        en:'Lines show who talks to whom. The rumor starts with just <b>two</b> residents. More clicks raise the rank, a higher rank brings more viewers, and more viewers bring more clicks.'},
+ task:{ko:'먼저 아래에서 예측한 뒤, 클릭 100%로 8일을 실행하세요.',zh:'先在下方做出预测，再以点击100%运行8天。',en:'Make your prediction below first, then run 8 days with clicks at 100%.'},
+ init(s){ s.T=makeTown(); seedRumor(s.T); s.series=[]; s.half=null; s.ran=false; s.P={w:1,posts:[POST.R],base:.35,ramp:10,shareP:.45,repeat:true}; },
+ ui(s,box){ const b=btn({ko:'8일 실행 (클릭 100%)',zh:'运行8天（点击100%）',en:'Run 8 days (clicks 100%)'},()=>{ if(PROG.pred[cur]==null){ toast(tx({ko:'먼저 예측하세요!',zh:'请先预测！',en:'Predict first!'})); return; } s.half=null; rumorRun(s,s.P,8,{ko:'소문 들은 비율',zh:'听过谣言的比例',en:'heard rumor'},'#7e2553',ser=>{ const i=ser.data.findIndex(v=>v>=50); s.half=i<0?99:i; s.ran=true; PROG.data.halfDay=s.half; save(); }); s.series=s.series.slice(-1); }); box.appendChild(row(b)); },
+ draw(s){ drawTown(s.T,{links:true,head:'#1 '+POST.R.head,day:s.T.day}); },
+ chart(s){ chartLine({series:s.series,xMax:8,hlines:[{v:50,color:'#e8204e',label:'HALF'}]}); legend([{color:'#7e2553',label:{ko:'소문 들은 주민 비율',zh:'听过谣言的居民比例',en:'Residents who heard the rumor'}}]); },
+ readout(s){ if(s.half==null) return ''; const p=PROG.pred[cur]; const pl=p!=null?L(STAGES[cur].quiz.opts[p]):'—'; return `<div class="card">${L({ko:'마을 절반이 들은 날',zh:'全镇一半人听到的那天',en:'Half the town heard it by'})}: <span class="big">${s.half===99?'—':'DAY '+s.half}</span><br>${L({ko:'내 예측',zh:'我的预测',en:'My prediction'})}: <b>${pl}</b></div>`; },
+ done(s){ return s.ran; },
+ quiz:{type:'predict',q:{ko:'마을 절반이 소문을 듣기까지 얼마나 걸릴까요?',zh:'要多久全镇一半的人会听到谣言？',en:'How long until half the town has heard the rumor?'},
+  opts:[{ko:'1~2일',zh:'1–2天',en:'1–2 days'},{ko:'3~4일',zh:'3–4天',en:'3–4 days'},{ko:'5~8일',zh:'5–8天',en:'5–8 days'},{ko:'절반에 이르지 못한다',zh:'到不了一半',en:'It never reaches half'}]},
+ key:{ko:'도달이 클릭을 사고, 클릭이 다시 도달을 삽니다. 각 단계가 다음 단계를 먹여 살리기 때문에 <b>작은 시작이 폭발</b>할 수 있습니다. 처음 며칠은 느리다가 갑자기 빨라지는 곡선을 보세요.',zh:'曝光换来点击，点击又换来曝光。每一步都在喂养下一步，所以<b>小小的开端也会爆发</b>。注意曲线：前几天很慢，然后突然加速。',en:'Reach buys clicks, and clicks buy reach. Because each step feeds the next, <b>small starts can explode</b>. Notice the curve: slow for a few days, then suddenly steep.'}
+});
+
+/* ---------- 5 ---------- */
+S({ch:0,
+ title:{ko:'늦게 온 정정',zh:'迟来的更正',en:'The Late Correction'},
+ story:{ko:'2일째, 빵집이 사진과 함께 정정 글을 올립니다. <i>“저희 모찌는 쌀과 설탕입니다. 슬라임은 없어요.”</i> 사실입니다. 그리고 조금 지루합니다.',
+        zh:'第2天，面包店配图发布更正：<i>“我们的麻糬是米和糖做的，没有史莱姆。”</i>这是真的，但也有点无聊。',
+        en:'On day 2, the bakery posts a correction with photos: <i>“Our mochi is rice and sugar. No slime.”</i> It is true. It is also a little boring.'},
+ task:{ko:'8일을 실행해 소문을 들은 사람과 정정을 본 사람을 비교하세요.',zh:'运行8天，比较听过谣言的人和看过更正的人。',en:'Run 8 days. Compare who heard the rumor with who saw the correction.'},
+ init(s){ s.w=1; s.T=makeTown(); seedRumor(s.T); s.P={w:1,posts:[POST.R,POST.C],base:.35,ramp:10,shareP:.45,repeat:true}; s.sR=[];s.sC=[]; s.ran=false; },
+ ui(s,box){
+  box.appendChild(slider({ko:'순위에서 클릭 비중',zh:'排序中点击的比重',en:'Weight on clicks in the ranking'},0,1,.1,s.w,v=>Math.round(v*100)+'%',v=>s.w=v));
+  box.appendChild(row(btn({ko:'8일 실행',zh:'运行8天',en:'Run 8 days'},()=>{ s.T=makeTown(); seedRumor(s.T); s.P={w:s.w,posts:[POST.R,POST.C],base:.35,ramp:10,shareP:.45,repeat:true}; s.sR=[s.T.hist[0].heard]; s.sC=[0]; play(8,420,()=>{ townDay(s.T,s.P); const h=s.T.hist[s.T.hist.length-1]; s.sR.push(h.heard); s.sC.push(h.sawC); },()=>{ s.ran=true; }); })));
+ },
+ draw(s){ const p=topPost(s.T,s.P); drawTown(s.T,{head:'#1 '+(p?p.head:''),day:s.T.day}); },
+ chart(s){ chartLine({series:[{data:s.sR,color:'#7e2553'},{data:s.sC,color:'#00a050'}],xMax:8}); legend([{color:'#7e2553',label:{ko:'소문을 들은 주민',zh:'听过谣言的居民',en:'Heard the rumor'}},{color:'#00a050',label:{ko:'정정을 본 주민',zh:'看过更正的居民',en:'Saw the correction'}}]); },
+ readout(s){ if(!s.ran) return ''; const h=s.T.hist[s.T.hist.length-1]; return `<div class="card">${L({ko:'소문',zh:'谣言',en:'Rumor'})} <span class="big">${h.heard}%</span> vs ${L({ko:'정정',zh:'更正',en:'Correction'})} <span class="big">${h.sawC}%</span></div>`; },
+ done(s){ return s.ran; },
+ quiz:{q:{ko:'정정 글은 왜 소문보다 훨씬 적은 사람에게 닿았나요?',zh:'为什么更正触达的人远少于谣言？',en:'Why did the correction reach far fewer people than the rumor?'},
+  opts:[{ko:'버즈가 스팸으로 분류해 숨겼다',zh:'Buzz 把它当垃圾信息隐藏了',en:'Buzz labeled it as spam and hid it'},{ko:'주민들이 이미 앱을 껐다',zh:'居民们已经关掉了应用',en:'Residents had already logged off'},{ko:'빵집이 밤에 올렸다',zh:'面包店是在深夜发的',en:'The bakery posted it at night'},{ko:'클릭이 적어 순위가 낮았다',zh:'点击少，所以排名低',en:'Fewer clicks, so it ranked lower'}],a:3,
+  why:{ko:'정정은 늦게 시작했고 클릭도 적어 순위가 낮았습니다. 다이얼을 낮추면 정정이 더 멀리 갑니다.',zh:'更正起步晚、点击少，所以排名低。把旋钮调低，更正就能传得更远。',en:'The correction started late and drew fewer clicks, so it ranked low. Turn the dial down and it travels farther.'}},
+ key:{ko:'정정은 대개 늦게 오고 클릭도 적어서 참여도 순위에 묻힙니다. <b>거짓을 바로잡는 비용이 퍼뜨리는 비용보다 큽니다.</b>',zh:'更正通常来得晚、点击少，因此被参与度排序埋没。<b>纠正谎言的成本高于散布谎言的成本。</b>',en:'Corrections usually arrive later and draw fewer clicks, so an engagement ranking buries them. <b>Fixing a falsehood costs more than spreading it.</b>'}
+});
+
+/* ---------- 6 ---------- */
+S({ch:0,
+ title:{ko:'자주 봤으니 사실?',zh:'看多了就是真的？',en:'Seen It Before, So It\'s True?'},
+ story:{ko:'여기서 주민은 소문을 <b>세 번</b> 보면 믿기 시작합니다(보라색 말풍선, 빙글빙글 도는 점). 머리 위 숫자는 각자 소문을 몇 번 봤는지입니다. 버즈는 이미 본 글을 <b>다시 보여 줄 수도</b>, 건너뛸 수도 있습니다.',
+        zh:'在这里，居民看到谣言<b>三次</b>就会开始相信（紫色气泡、旋转的小点）。头顶的数字是每人看过谣言的次数。Buzz 可以<b>重复推送</b>已经看过的帖子，也可以跳过。',
+        en:'Here, a resident starts to <b>believe</b> the rumor after seeing it <b>three times</b> (purple bubble, swirling dots). The number above each head counts how often they have seen it. Buzz can <b>re-show</b> posts people have already seen, or skip them.'},
+ task:{ko:'다시 보여 주기를 켜고 한 번, 끄고 한 번, 8일씩 실행하세요.',zh:'开启“重复推送”运行一次，关闭再运行一次，各8天。',en:'Run 8 days with re-showing ON, and once with it OFF.'},
+ init(s){ s.rep=true; s.series=[]; s.runs=[]; s.metric='bel'; s.seed=Math.random()*1e9|0; s.T=makeTown(s.seed); seedRumor(s.T); s.P={w:1,posts:[POST.R],base:.35,ramp:10,shareP:.45,repeat:true}; },
+ ui(s,box){
+  box.appendChild(seg([{v:true,label:{ko:'다시 보여 주기 켬',zh:'重复推送：开',en:'Re-show: ON'}},{v:false,label:{ko:'다시 보여 주기 끔',zh:'重复推送：关',en:'Re-show: OFF'}}],s.rep,v=>s.rep=v));
+  box.appendChild(row(btn({ko:'8일 실행',zh:'运行8天',en:'Run 8 days'},()=>{ const rep=s.rep; rumorRun(s,{w:1,posts:[POST.R],base:.35,ramp:10,shareP:.45,repeat:rep},8,rep?{ko:'다시 보여 주기 켬',zh:'重复推送 开',en:'re-show ON'}:{ko:'다시 보여 주기 끔',zh:'重复推送 关',en:'re-show OFF'},rep?'#7e2553':'#29adff',ser=>{ s.runs.push({rep,bel:ser.data[ser.data.length-1]}); }); })));
+ },
+ draw(s){ drawTown(s.T,{counts:true,head:'#1 '+POST.R.head,day:s.T.day}); },
+ chart(s){ chartLine({series:s.series,xMax:8}); legend(s.series.map(x=>({color:x.color,label:{ko:x.label.ko+' · 믿는 주민',zh:x.label.zh+' · 相信的居民',en:x.label.en+' · believers'}}))); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${r.rep?L({ko:'켬',zh:'开',en:'ON'}):L({ko:'끔',zh:'关',en:'OFF'})} → ${L({ko:'믿는 주민',zh:'相信的居民',en:'believers'})} <b>${r.bel}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.rep)&&s.runs.some(r=>!r.rep); },
+ quiz:{q:{ko:'새 증거가 하나도 없는데 믿음이 늘었습니다. 무엇 때문인가요?',zh:'没有任何新证据，相信的人却变多了。为什么？',en:'Belief grew even though no new evidence appeared. What drove it?'},
+  opts:[{ko:'전문가가 소문을 지지해서',zh:'有专家支持谣言',en:'An expert backed the rumor'},{ko:'같은 글을 보고 또 봐서',zh:'同一条反复看到',en:'Seeing it again and again'},{ko:'빵집이 사실이라고 인정해서',zh:'面包店承认了',en:'The bakery admitted it'},{ko:'주민들이 사실 확인을 해서',zh:'居民们做了核实',en:'Residents fact-checked it'}],a:1,
+  why:{ko:'증거는 그대로였습니다. 바뀐 것은 노출 횟수뿐입니다.',zh:'证据没变，变的只是曝光次数。',en:'The evidence never changed. Only the number of exposures did.'}},
+ key:{ko:'반복은 주장을 익숙하게 만들고, 익숙한 것은 사실처럼 느껴집니다. 심리학에서는 이를 <i>진실 착각 효과</i>라고 부릅니다. (세 번 보면 믿는다는 규칙은 설명을 위해 단순화한 것입니다.)',zh:'重复让说法变得熟悉，而熟悉的东西感觉像是真的。心理学称之为<i>虚幻真相效应</i>。（“看三次就相信”是为演示而简化的规则。）',en:'Repetition makes a claim feel familiar, and familiar feels true; psychologists call this the <i>illusory truth effect</i>. (Our three-views rule is a simplification for the game.)'}
+});
+
+/* ---------- 7 ---------- */
+const LOOP_STEPS=[
+ {ko:'사람들이 자극적인 글을 클릭한다',zh:'人们点击刺激性的帖子',en:'People click the shocking post'},
+ {ko:'버즈가 클릭을 ‘좋은 글’ 신호로 읽고 순위를 올린다',zh:'Buzz 把点击当作“好帖”的信号，提高排名',en:'Buzz reads clicks as “good” and ranks it higher'},
+ {ko:'더 많은 사람이 그 글을 본다',zh:'更多人看到这条帖子',en:'More people see it'},
+ {ko:'클릭이 더 쌓인다 → 다시 처음으로',zh:'点击继续累积 → 回到起点',en:'Even more clicks pile up → back to the start'},
+];
+S({ch:0,
+ title:{ko:'고리를 닫아라',zh:'闭合循环',en:'Close the Loop'},
+ story:{ko:'방금 본 고리를 네 단계로 다시 조립하세요. <b>클릭</b>에서 시작합니다.',zh:'把刚才看到的循环按四个步骤重新拼起来。从<b>点击</b>开始。',en:'Rebuild the loop you just watched, in four steps. Start from the <b>click</b>.'},
+ task:{ko:'카드를 올바른 순서대로 클릭하세요.',zh:'按正确顺序点击卡片。',en:'Click the cards in the right order.'},
+ init(s){ s.order=[]; s.mistake=false; s.shuffle=[2,0,3,1]; s.msg=''; },
+ ui(s,box){ const wrap=el('div'); s.shuffle.forEach(k=>{ const c=el('button','pcard'+(s.order.includes(k)?' used':''),L(LOOP_STEPS[k])); c.onclick=()=>{ if(s.order.includes(k)||s.order.length>=4) return; if(k===s.order.length){ s.order.push(k); c.classList.add('used'); s.msg=''; if(s.order.length===4){ PROG.quiz[cur]={ok:true,first:!s.mistake}; save(); } } else { s.mistake=true; s.order=[]; s.msg=tx({ko:'순서가 달라요. 처음부터 다시!',zh:'顺序不对，从头再来！',en:'Wrong order. Start again!'}); [...wrap.children].forEach(x=>x.classList.remove('used')); } refresh(); }; wrap.appendChild(c); }); box.appendChild(wrap); },
+ draw(s){ px(0,0,320,180,'#1d2b53'); const cx=160,cy=94,R=58; const t=performance.now(); for(let i=0;i<120;i++){ const a=i/120*Math.PI*2; const lit=s.order.length>=Math.floor(i/30)+1; px(cx+Math.cos(a-Math.PI/2)*R,cy+Math.sin(a-Math.PI/2)*R*0.78,2,2,lit?'#ffec27':'#3a4680'); }
+  const labels=['CLICK','RANK UP','MORE SEE','MORE CLICKS']; for(let k=0;k<4;k++){ const a=k/4*Math.PI*2-Math.PI/2; const x=cx+Math.cos(a)*R, y=cy+Math.sin(a)*R*0.78; const lit=s.order.length>k; px(x-22,y-9,44,18,lit?'#ffec27':'#26315f'); px(x-22,y-9,44,1,'#0b1030'); tt(labels[k],x,y-2,lit?'#1d2b53':'#8c96c8',1,'center'); }
+  const spin=s.order.length===4; blob(cx-9,cy-10,'peach',{s:2,bob:spin?t/120:t/400}); tt(s.order.length===4?'LOOP CLOSED!':s.order.length+'/4',cx,8,'#ffec27',2,'center'); if(spin){ const a=t/500; heart(cx+Math.cos(a)*R-2,cy+Math.sin(a)*R*0.78-2); } },
+ chart(s){ chartBars([{label:'STEPS',v:s.order.length,color:'#ffec27',text:s.order.length+'/4'}],{yMax:4,ticks:[0,2,4],unit:''}); legend([]); },
+ readout(s){ return s.msg?`<div class="card" style="background:#ffe3e8">${s.msg}</div>`:''; },
+ done(s){ return s.order.length===4; },
+ key:{ko:'이것이 <b>되먹임 고리</b>입니다. 시스템의 출력이 다음 입력이 됩니다. Gangadharan(2012)은 인종 프로파일링에서 같은 모양을 보여 줍니다. 검문이 늘면 ‘발견’이 늘고, 그 발견이 다시 검문을 정당화합니다. 이 고리를 기억하세요. 다음 장마다 다시 나옵니다.',zh:'这就是<b>反馈循环</b>：系统的输出成为下一次的输入。Gangadharan（2012）在种族画像中指出了同样的形状：盘查越多，“发现”越多，这些发现又为更多盘查提供理由。记住这个循环，后面每一章都会再出现。',en:'This is a <b>feedback loop</b>: the system\'s output becomes its next input. Gangadharan (2012) shows the same shape in racial profiling: more stops produce more “findings,” which justify more stops. Keep this loop in mind; it returns in every chapter.'}
+});
+
+/* =========================================================
+   SPLIT TOWN (Chapter 2)
+   ========================================================= */
+function makeSplit(){ const N=[],So=[]; for(let i=0;i<16;i++){ N.push({x:16+(i%8)*37+(i>=8?14:0),y:i<8?30:60,kind:'mint',ph:i}); So.push({x:16+(i%8)*37+(i>=8?14:0),y:i<8?112:144,kind:'peach',ph:i+3}); } return {N,S:So,bots:[],marks:[]}; }
+function setBots(W,nS){ const want=[...Array(10)].map((_,i)=>i<nS?'S':'N'); while(W.bots.length<10) W.bots.push({x:150,y:90,tx:150,ty:90,side:'N'}); W.bots.forEach((b,i)=>{ b.side=want[i]; }); }
+function stepBots(W){ for(const b of W.bots){ const yr=b.side==='N'?[26,74]:[108,160]; if(b.ty<yr[0]||b.ty>yr[1]||Math.hypot(b.tx-b.x,b.ty-b.y)<2){ b.tx=10+rnd()*290; b.ty=yr[0]+rnd()*(yr[1]-yr[0]); } b.x+=(b.tx-b.x)*0.04; b.y+=(b.ty-b.y)*0.04; } }
+function addMarks(W,side,k){ const now=performance.now(); for(let i=0;i<Math.min(k,14);i++){ const yr=side==='N'?[24,78]:[106,164]; W.marks.push({x:8+rnd()*300,y:yr[0]+rnd()*(yr[1]-yr[0]),t:now+rnd()*300}); } }
+function drawSplit(W,o={}){
+  const t=performance.now();
+  px(0,0,320,88,'#bdf0d8'); px(0,96,320,84,'#ffe0cc');
+  for(let i=0;i<40;i++){ px((i*67)%320,6+((i*31)%78),2,1,'#9fe0c2'); px((i*59+20)%320,100+((i*29)%76),2,1,'#f5c9ae'); }
+  px(0,88,320,8,'#29adff'); for(let x=(t/60)%12-12;x<320;x+=12) px(x,91,5,1,'#9fe3ff'); px(146,86,28,12,'#ab5236'); for(let i=0;i<28;i+=4) px(146+i,86,2,12,'#8a3f22');
+  [[250,6],[200,40],[96,6]].forEach(([x,y])=>house(x,y,'#00a050')); [[250,100],[200,128],[96,100]].forEach(([x,y])=>house(x,y,'#e8204e'));
+  tt('NORTH',4,4,'#1d2b53',2); tt('SOUTH',4,166,'#1d2b53',2);
+  const mood=o.mood||{};
+  for(const r of W.N){ blob(r.x,r.y,'mint',{bob:t/330+r.ph}); }
+  for(const r of W.S){ blob(r.x,r.y,'peach',{bob:t/330+r.ph}); }
+  if(o.thoughts){ [0,3,6,9,13].forEach(i=>{ const r=W.N[i]; thought(r.x,r.y-14,'peach',mood.peach); }); [1,4,10,14].forEach(i=>{ const r=W.S[i]; thought(r.x,r.y-14,'mint',mood.mint); }); }
+  W.marks=W.marks.filter(m=>t-m.t<2600); for(const m of W.marks){ if(t<m.t) continue; px(m.x,m.y,6,7,'#1d2b53'); px(m.x+1,m.y+1,4,5,'#fff8ef'); px(m.x+2,m.y+2,1,2,'#e8204e'); px(m.x+2,m.y+5,1,1,'#e8204e'); }
+  for(const b of W.bots) bot(b.x,b.y,t);
+  if(o.reveal){ if(o.reveal.N){ px(212,64,104,18,'#1d2b53'); tt('TRUE RATE 5%',264,70,'#ffec27',1,'center'); } if(o.reveal.S){ px(212,98,104,18,'#1d2b53'); tt('TRUE RATE 5%',264,104,'#ffec27',1,'center'); } }
+  if(o.label) { px(110,0,100,12,'#1d2b53'); tt(o.label,160,4,'#ffec27',1,'center'); }
+}
+/* ---------- 8 ---------- */
+S({ch:1,
+ title:{ko:'강 하나, 두 동네',zh:'一条河，两个街区',en:'One River, Two Sides'},
+ story:{ko:'강이 루프 타운을 가릅니다. 민트 주민은 주로 <b>북쪽</b>, 피치 주민은 <b>남쪽</b>에 삽니다. 마을에는 순찰 로봇이 10대 있습니다. 오래전 낡은 ‘위험 지도’가 로봇 6대를 남쪽, 4대를 북쪽에 보냈고, 그 뒤로 아무도 지도를 다시 그리지 않았습니다.',
+        zh:'一条河把循环镇分成两半。薄荷居民大多住在<b>北边</b>，蜜桃居民住在<b>南边</b>。镇上有10台巡逻机器人。很久以前，一张老旧的“风险地图”把6台派到南边、4台派到北边，此后再也没人重画过这张地图。',
+        en:'A river splits Loop Town. Mint folk mostly live on the <b>North</b> side, Peach folk on the <b>South</b> side. The town has 10 patrol bots. Long ago, an old “risk map” sent 6 bots South and 4 North, and nobody ever redrew it.'},
+ task:{ko:'각 동네를 클릭해 <b>실제</b> 문제 발생률을 확인하세요(여러분만 볼 수 있습니다).',zh:'点击两个街区，查看<b>真实</b>的问题发生率（只有你能看到）。',en:'Click each side to reveal its <b>true</b> trouble rate (only you can see it).'},
+ init(s){ s.W=makeSplit(); setBots(s.W,6); s.rev={N:false,S:false}; },
+ click(s,x,y){ if(y<88) s.rev.N=true; else if(y>96) s.rev.S=true; refresh(); },
+ ui(s,box){ box.appendChild(row(btn({ko:'북쪽 보기',zh:'查看北边',en:'Reveal North'},()=>s.rev.N=true,'alt'),btn({ko:'남쪽 보기',zh:'查看南边',en:'Reveal South'},()=>s.rev.S=true,'pink'))); },
+ tick(s){ stepBots(s.W); },
+ draw(s){ drawSplit(s.W,{reveal:s.rev,label:'BOTS N4 / S6'}); },
+ chart(s){ chartBars([{label:'BOTS N',v:4,color:'#7fe0c0'},{label:'BOTS S',v:6,color:'#ffb38a'},{label:'TRUE N',v:s.rev.N?5:0,color:'#3fa88a',text:s.rev.N?'5%':'?'},{label:'TRUE S',v:s.rev.S?5:0,color:'#d9784a',text:s.rev.S?'5%':'?'}],{yMax:10,ticks:[0,5,10],unit:''}); legend([{color:'#7fe0c0',label:{ko:'로봇 수(북)',zh:'机器人数（北）',en:'Bots (North)'}},{color:'#ffb38a',label:{ko:'로봇 수(남)',zh:'机器人数（南）',en:'Bots (South)'}},{color:'#3fa88a',label:{ko:'실제 발생률 %',zh:'真实发生率 %',en:'True rate %'}}]); },
+ done(s){ return s.rev.N&&s.rev.S; },
+ quiz:{q:{ko:'실제로는 어느 동네에 문제가 더 많나요?',zh:'实际上哪个街区的问题更多？',en:'In reality, which side has more trouble?'},
+  opts:[{ko:'남쪽이 더 많다',zh:'明显是南边',en:'The South, clearly'},{ko:'북쪽이 더 많다',zh:'明显是北边',en:'The North, clearly'},{ko:'두 곳이 같다',zh:'两边一样',en:'They are the same'},{ko:'알 수 없다',zh:'无从得知',en:'Nobody can know'}],a:2,
+  why:{ko:'두 동네 모두 5%입니다. 다른 것은 로봇을 보낸 오래된 결정뿐입니다.',zh:'两边都是5%。唯一不同的是当年派机器人的那个旧决定。',en:'Both sides are at 5%. The only difference is an old decision about where to send bots.'}},
+ key:{ko:'두 동네의 실제 발생률은 같습니다. 다른 것은 <b>‘어디를 볼지’에 관한 오래된 결정</b> 하나뿐입니다. Gangadharan이 다룬 레드라이닝도 이렇게 작동합니다. 한 번 그은 지도가 그 뒤의 결과를 계속 정합니다.',zh:'两个街区的真实发生率相同。不同的只是<b>一个关于“往哪看”的旧决定</b>。Gangadharan 讨论的“红线政策”（redlining）也是这样运作的：一次画下的地图，持续决定之后的结果。',en:'Both sides have the same true rate. The only difference is <b>an old decision about where to look</b>. Gangadharan\'s redlining case works the same way: a map drawn once keeps deciding later outcomes.'}
+});
+/* ---------- 9 ---------- */
+S({ch:1,
+ title:{ko:'찾는 곳에서 찾는다',zh:'在哪找，就在哪发现',en:'You Find What You Look For'},
+ story:{ko:'로봇 한 대는 하루에 100번 확인(검문)합니다. 두 동네 모든 주민이 사소한 문제를 일으킬 확률은 <b>똑같이 5%</b>입니다. 로봇은 찾아낸 사건을 모두 기록합니다. 마을 대시보드에는 <b>기록만</b> 표시됩니다.',
+        zh:'每台机器人每天检查100次。两个街区每位居民出小问题的概率<b>都是5%</b>。机器人会把发现的事件全部记录下来。镇上的仪表板<b>只显示记录</b>。',
+        en:'Each bot makes 100 checks a day. Every resident on both sides has the <b>same 5% chance</b> of minor trouble. Bots write down every incident they find. The town dashboard shows <b>only the records</b>.'},
+ task:{ko:'최소 3일을 실행하며 대시보드를 지켜보세요.',zh:'至少运行3天，观察仪表板。',en:'Run at least 3 days and watch the dashboard.'},
+ init(s){ s.W=makeSplit(); setBots(s.W,6); s.recN=0; s.recS=0; s.days=0; },
+ ui(s,box){ box.appendChild(row(btn({ko:'하루 실행',zh:'运行一天',en:'Run one day'},()=>{ play(1,10,()=>{ const a=binom(400,.05), b=binom(600,.05); s.recN+=a; s.recS+=b; s.days++; addMarks(s.W,'N',a); addMarks(s.W,'S',b); }); }),btn({ko:'3일 한꺼번에',zh:'一次运行3天',en:'Run 3 days'},()=>{ play(3,700,()=>{ const a=binom(400,.05), b=binom(600,.05); s.recN+=a; s.recS+=b; s.days++; addMarks(s.W,'N',a); addMarks(s.W,'S',b); }); },'alt'))); },
+ tick(s){ stepBots(s.W); },
+ draw(s){ drawSplit(s.W,{label:'DAY '+s.days}); },
+ chart(s){ chartBars([{label:'NORTH',v:s.recN,color:'#7fe0c0'},{label:'SOUTH',v:s.recS,color:'#ffb38a'}],{yMax:Math.max(20,Math.ceil((s.recS+5)/10)*10),ticks:[0,Math.max(20,Math.ceil((s.recS+5)/10)*10)/2,Math.max(20,Math.ceil((s.recS+5)/10)*10)],unit:''}); legend([{color:'#7fe0c0',label:{ko:'북쪽 기록된 사건(누적)',zh:'北边记录的事件（累计）',en:'North recorded incidents (total)'}},{color:'#ffb38a',label:{ko:'남쪽 기록된 사건(누적)',zh:'南边记录的事件（累计）',en:'South recorded incidents (total)'}}]); },
+ readout(s){ return `<div class="card"><b>📊 ${L({ko:'마을 대시보드',zh:'小镇仪表板',en:'Town dashboard'})}</b><br>${L({ko:'북쪽',zh:'北边',en:'North'})}: <span class="big">${s.recN}</span> &nbsp; ${L({ko:'남쪽',zh:'南边',en:'South'})}: <span class="big">${s.recS}</span><br><small>${L({ko:'하루 확인 횟수 — 북 400번, 남 600번 (대시보드에는 안 나옴)',zh:'每日检查次数——北400次、南600次（仪表板上不显示）',en:'Checks per day: North 400, South 600 (not shown on the dashboard)'})}</small></div>`; },
+ done(s){ return s.days>=3; },
+ quiz:{q:{ko:'대시보드에는 남쪽 사건이 더 많다고 나옵니다. 왜인가요?',zh:'仪表板显示南边事件更多。为什么？',en:'The dashboard says the South has more incidents. Why?'},
+  opts:[{ko:'그쪽을 더 많이 살펴봐서',zh:'那边被查得更多',en:'More bots were looking there'},{ko:'남쪽 주민이 규칙을 더 어겨서',zh:'南边居民更爱违规',en:'South residents break more rules'},{ko:'남쪽 로봇이 더 똑똑해서',zh:'南边的机器人更聪明',en:'The South bots are smarter'},{ko:'북쪽이 기록을 숨겨서',zh:'北边隐瞒了记录',en:'North hides its records'}],a:0,
+  why:{ko:'발생률은 같고, 확인 횟수가 1.5배입니다. 그래서 기록도 약 1.5배입니다.',zh:'发生率相同，检查次数是1.5倍，所以记录也约是1.5倍。',en:'Same rate, 1.5 times the checks, so about 1.5 times the records.'}},
+ key:{ko:'기록은 무슨 일이 있었는지만큼 <b>우리가 어디를 봤는지</b>를 잽니다. ‘사건이 더 많다’는 말은 그저 ‘순찰이 더 많다’는 뜻일 수 있습니다.',zh:'记录测量的不只是发生了什么，也测量了<b>我们往哪里看</b>。“事件更多”可能只是“巡逻更多”的意思。',en:'Records measure <b>where we looked</b> as much as what happened. “More incidents” can simply mean “more patrols.”'}
+});
+/* ---------- 10 ---------- */
+function patrolDay(sh,mode,checks=1000){ const cS=Math.round(checks*sh), cN=checks-cS; const rS=binom(cS,.05), rN=binom(cN,.05); let next=sh; const tot=rS+rN; if(tot>0){ if(mode==='rate'){ const a=cS?rS/cS:0, b=cN?rN/cN:0; next=(a+b)>0? (a*a)/(a*a+b*b):sh; next=0.5*sh+0.5*next; } else { const r=rS/tot; next = mode==='hot'? (r*r)/(r*r+(1-r)*(1-r)) : 0.5*sh+0.5*r; } } return {rS,rN,next:clamp(next,0,1)}; }
+S({ch:1,
+ title:{ko:'스스로를 증명하는 예측',zh:'自我证明的预测',en:'The Prediction That Proves Itself'},
+ story:{ko:'마을이 <b>순찰봇 AI</b>를 들여옵니다. 매일 아침 어제 기록을 읽고 기록이 있는 곳으로 순찰을 보냅니다. 설정은 두 가지입니다. <b>비례</b>: 기록 비율 그대로 순찰을 나눈다. <b>핫스폿</b>: 기록이 많은 쪽에 순찰을 더 몰아준다.',
+        zh:'小镇引进了<b>巡逻机器人AI</b>。它每天早上读取昨天的记录，把巡逻派到有记录的地方。有两种设置。<b>按比例</b>：按记录比例分配巡逻。<b>热点</b>：把更多巡逻集中到记录多的一边。',
+        en:'The town buys <b>PatrolBot AI</b>. Each morning it reads yesterday\'s records and sends patrols where the records are. Two settings. <b>Proportional</b>: split patrols in the same ratio as the records. <b>Hotspot</b>: send extra patrols to the side with more records.'},
+ task:{ko:'두 설정에서 각각 20일을 실행하세요.',zh:'两种设置各运行20天。',en:'Run 20 days in each setting.'},
+ init(s){ s.W=makeSplit(); setBots(s.W,6); s.mode='prop'; s.series=[]; s.runs=[]; s.sh=.6; s.day=0; },
+ ui(s,box){ box.appendChild(seg([{v:'prop',label:{ko:'비례',zh:'按比例',en:'Proportional'}},{v:'hot',label:{ko:'핫스폿',zh:'热点',en:'Hotspot'}}],s.mode,v=>s.mode=v));
+  box.appendChild(row(btn({ko:'20일 실행',zh:'运行20天',en:'Run 20 days'},()=>{ const mode=s.mode; s.sh=.6; s.day=0; setBots(s.W,6); const ser={data:[60],color:mode==='hot'?'#e8204e':'#29adff',label:mode==='hot'?{ko:'핫스폿',zh:'热点',en:'Hotspot'}:{ko:'비례',zh:'按比例',en:'Proportional'}}; s.series=s.series.filter(x=>x.label.en!==ser.label.en); s.series.push(ser); play(20,230,()=>{ const r=patrolDay(s.sh,mode,20000); s.sh=r.next; s.day++; setBots(s.W,Math.round(s.sh*10)); addMarks(s.W,'N',Math.round(r.rN/90)); addMarks(s.W,'S',Math.round(r.rS/90)); ser.data.push(Math.round(s.sh*100)); },()=>{ s.runs.push({mode,end:Math.round(s.sh*100)}); }); }))); },
+ tick(s){ stepBots(s.W); },
+ draw(s){ drawSplit(s.W,{label:'DAY '+s.day+'  S '+Math.round(s.sh*100)+'%'}); },
+ chart(s){ chartLine({series:s.series,xMax:20,hlines:[{v:50,color:'#00a050',label:'TRUE NEED 50%'}]}); legend([...s.series.map(x=>({color:x.color,label:{ko:x.label.ko+' · 남쪽에 간 순찰 비율',zh:x.label.zh+' · 派往南边的巡逻比例',en:x.label.en+' · share of patrols sent South'}})),{color:'#00a050',label:{ko:'실제로 필요한 비율(50%)',zh:'真正需要的比例（50%）',en:'What the true rates call for (50%)'}}]); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${r.mode==='hot'?L({ko:'핫스폿',zh:'热点',en:'Hotspot'}):L({ko:'비례',zh:'按比例',en:'Proportional'})}: 60% → <b>${r.end}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.mode==='prop')&&s.runs.some(r=>r.mode==='hot'); },
+ quiz:{q:{ko:'비례 모드에서 옛 60/40 배치는 끝내 바로잡히지 않았습니다. 왜인가요?',zh:'在“按比例”模式下，旧的60/40分配始终没有被纠正。为什么？',en:'In Proportional mode, the old 60/40 split never corrected itself. Why?'},
+  opts:[{ko:'실제 발생률이 시간이 지나며 바뀌어서',zh:'真实发生率随时间改变了',en:'The true trouble rates changed over time'},{ko:'로봇이 남쪽을 우대하도록 짜여서',zh:'机器人被编程为偏向南边',en:'The bots were programmed to favor South'},{ko:'북쪽 주민들이 로봇을 피해 숨어서',zh:'北边居民躲着机器人',en:'North residents hid from the patrol bots'},{ko:'기록은 로봇이 본 곳만 보여 주므로',zh:'记录只反映查过的地方',en:'Records only show where the bots looked'}],a:3,
+  why:{ko:'기록 비율은 순찰 비율을 그대로 따라갑니다. 시스템은 자기가 보지 않은 곳에 대해 배울 길이 없습니다.',zh:'记录比例完全跟着巡逻比例走。系统无从了解它没去看的地方。',en:'The record ratio simply mirrors the patrol ratio. The system has no way to learn about places it does not look.'}},
+ key:{ko:'고리 속 숫자는 모두 진짜입니다. 그런데도 결론은 틀렸습니다. 비례 규칙은 옛 60/40 쏠림을 <b>고정</b>하고, 핫스폿 규칙은 그것을 <b>증폭</b>합니다. 시스템은 이미 보는 곳에서만 데이터를 모으므로, 데이터가 실수를 알려 줄 길이 없습니다.',zh:'循环里的每个数字都是真的，结论却是错的。按比例的规则把旧的60/40偏差<b>冻结</b>下来，热点规则则把它<b>放大</b>。系统只在已经在看的地方收集数据，所以数据永远无法告诉它自己错了。',en:'Every number in the loop is real, and the conclusion is still wrong. A proportional rule <b>freezes</b> the old 60/40 skew; a hotspot rule <b>amplifies</b> it. The system only collects data where it already looks, so the data can never show it the mistake.'}
+});
+/* ---------- 11 ---------- */
+const HEAD={
+ S:[{ko:'남쪽에서 또 사건',zh:'南边又出事了',en:'Another incident on the South side'},{ko:'남쪽 순찰, 또 문제 발견',zh:'南边巡逻再次发现问题',en:'South patrol finds trouble again'},{ko:'남쪽은 안전한가? 기록 증가',zh:'南边安全吗？记录增加',en:'Is the South safe? Records rise'}],
+ N:[{ko:'북쪽에서 사건 신고',zh:'北边有事件报告',en:'Incident reported on the North side'}],
+ O:[{ko:'이번 주말 모찌 축제',zh:'本周末麻糬节',en:'Mochi festival this weekend'},{ko:'다리에 새 조명',zh:'桥上装了新灯',en:'New lights on the bridge'},{ko:'도서관 운영 시간 연장',zh:'图书馆延长开放时间',en:'Library extends its hours'},{ko:'목요일 비 소식',zh:'周四有雨',en:'Rain expected Thursday'},{ko:'고양이, 명예 시장 당선',zh:'猫咪当选荣誉镇长',en:'Cat elected honorary mayor'},{ko:'남쪽 정원 꽃 축제',zh:'南边花园花展',en:'Flower show in South gardens'}],
+};
+S({ch:1,
+ title:{ko:'헤드라인이 그리는 그림',zh:'头条画出的形象',en:'Headlines Paint a Picture'},
+ story:{ko:'순찰 기록은 뉴스가 됩니다. 버즈는 클릭을 기준으로 그날의 헤드라인 6개를 고르고, 무서운 헤드라인은 클릭을 더 받습니다. 지금 기록 대부분은 남쪽에서 나옵니다(순찰봇이 순찰의 85%를 그쪽에 보냅니다). 말풍선 속 얼굴은 각 동네가 <b>상대 집단</b>을 어떻게 느끼는지 보여 줍니다.',
+        zh:'巡逻记录变成了新闻。Buzz 按点击挑选当天的6条头条，吓人的头条会得到额外点击。现在大部分记录来自南边（巡逻机器人把85%的巡逻派到了那里）。气泡里的表情显示每个街区如何看待<b>另一个群体</b>。',
+        en:'Patrol records become news. Buzz picks the day\'s top six headlines by clicks, and scary headlines get extra clicks. Most records now come from the South (PatrolBot sends 85% of patrols there). The faces in the bubbles show how each side feels about <b>the other group</b>.'},
+ task:{ko:'‘무서운 헤드라인’ 클릭 보너스를 ×1 이상으로 두고 10일을 실행하세요. 낮게도 한 번 돌려 보면 비교가 됩니다.',zh:'把“吓人头条”的点击加成设为 ×1 以上，运行10天。再用较低的加成跑一次，可以比较。',en:'Set the “scary headline” click bonus to ×1 or more and run 10 days. Try a low bonus too, to compare.'},
+ init(s){ s.W=makeSplit(); setBots(s.W,8); s.boost=2; s.img={peach:70,mint:70}; s.sp=[70]; s.sm=[70]; s.feed=[]; s.day=0; s.ran=false; },
+ ui(s,box){ box.appendChild(slider({ko:'무서운 헤드라인 클릭 보너스',zh:'吓人头条的点击加成',en:'Click bonus for scary headlines'},0.5,3,.25,s.boost,v=>'×'+v.toFixed(2),v=>s.boost=v,[{ko:'덜 클릭',zh:'少点',en:'fewer clicks'},{ko:'훨씬 더 클릭',zh:'多得多',en:'many more clicks'}]));
+  box.appendChild(row(btn({ko:'10일 실행',zh:'运行10天',en:'Run 10 days'},()=>{ s.img={peach:70,mint:70}; s.sp=[70]; s.sm=[70]; s.day=0; play(10,520,()=>{ const r=patrolDay(.85,'prop'); addMarks(s.W,'S',Math.round(r.rS/6)); addMarks(s.W,'N',Math.round(r.rN/6)); const cand=[]; const nS=Math.round(r.rS/5), nN=Math.round(r.rN/5); for(let i=0;i<nS;i++) cand.push({g:'S',h:HEAD.S[i%3],sc:.1*s.boost*(0.8+0.4*rnd())}); for(let i=0;i<nN;i++) cand.push({g:'N',h:HEAD.N[0],sc:.1*s.boost*(0.8+0.4*rnd())}); HEAD.O.forEach(h=>cand.push({g:'O',h,sc:.12*(0.8+0.4*rnd())})); cand.sort((a,b)=>b.sc-a.sc); s.feed=cand.slice(0,6); const cs=s.feed.filter(x=>x.g==='S').length, cn=s.feed.filter(x=>x.g==='N').length, co=6-cs-cn; s.img.peach=clamp(s.img.peach-1.7*cs+0.35*co,0,100); s.img.mint=clamp(s.img.mint-1.7*cn+0.35*co,0,100); s.sp.push(Math.round(s.img.peach)); s.sm.push(Math.round(s.img.mint)); s.day++; },()=>{ s.ran=true; s.runs=(s.runs||[]).concat([{boost:s.boost,peach:Math.round(s.img.peach)}]); }); }))); },
+ tick(s){ stepBots(s.W); },
+ draw(s){ drawSplit(s.W,{thoughts:true,mood:s.img,label:'DAY '+s.day}); },
+ chart(s){ chartLine({series:[{data:s.sp,color:'#d9784a'},{data:s.sm,color:'#3fa88a'}],xMax:10}); legend([{color:'#d9784a',label:{ko:'피치 주민에 대한 마을의 호감',zh:'全镇对蜜桃居民的好感',en:'Town\'s warmth toward Peach folk'}},{color:'#3fa88a',label:{ko:'민트 주민에 대한 마을의 호감',zh:'全镇对薄荷居民的好感',en:'Town\'s warmth toward Mint folk'}}]); },
+ readout(s){ if(!s.feed.length) return ''; const hist=(s.runs||[]).slice(-3).map(r=>`×${r.boost.toFixed(2)} → ${L({ko:'피치 호감',zh:'对蜜桃的好感',en:'Peach warmth'})} 70 → <b>${r.peach}</b>`).join('<br>'); return (hist?`<div class="card">${hist}</div>`:'')+`<div class="card"><b>📰 ${L({ko:'오늘의 버즈 헤드라인',zh:'今日 Buzz 头条',en:'Today\'s Buzz headlines'})}</b><ol class="feed">${s.feed.map(f=>`<li>${f.g==='S'?'🟠':f.g==='N'?'🟢':'⚪'} ${L(f.h)}</li>`).join('')}</ol></div>`; },
+ done(s){ return !!(s.runs&&s.runs.some(r=>r.boost>=1)); },
+ quiz:{q:{ko:'남쪽의 실제 발생률은 여전히 5%입니다. 무엇이 피치 주민에 대한 마을의 이미지를 어둡게 했나요?',zh:'南边的真实发生率仍然是5%。是什么让全镇对蜜桃居民的印象变差了？',en:'The South\'s true rate is still 5%. What darkened the town\'s image of Peach folk?'},
+  opts:[{ko:'피치 주민이 실제로 문제를 더 일으켜서',zh:'蜜桃居民确实惹了更多麻烦',en:'Peach folk really did cause more trouble'},{ko:'남쪽 사건만 가득한 피드를 봐서',zh:'信息流里满是南边的事件',en:'A feed packed with South incident news'},{ko:'북쪽 주민이 피치 주민을 직접 만나서',zh:'北边居民亲自见了蜜桃居民',en:'North residents met Peach folk in person'},{ko:'시장이 그들을 비난하는 연설을 해서',zh:'镇长发表了谴责他们的讲话',en:'The mayor gave a speech against them'}],a:1,
+  why:{ko:'순찰이 몰린 곳의 기록 → 클릭이 몰리는 헤드라인 → 한 집단의 사건만 보이는 피드. 거짓말은 없었습니다.',zh:'巡逻集中处的记录 → 吸引点击的头条 → 只看得到一个群体事件的信息流。整个过程没有一句谎话。',en:'Records from where patrols went → headlines that draw clicks → a feed that shows one group\'s incidents. No one lied.'}},
+ key:{ko:'누구도 혐오 글을 쓰지 않았습니다. 부정적 이미지는 <b>보이는 것</b>에서 자랐습니다. 한 집단의 사건이 더 많이 기록되고, 더 높이 순위가 매겨지고, 더 많이 보였습니다. 거짓말 하나 없이 고정관념이 학습되는 방식입니다.',zh:'没有人发布仇恨言论。负面形象是从<b>能被看到的东西</b>里长出来的：一个群体的事件被记录得更多、排名更高、被看到得更多。这就是没有一句谎言也能习得刻板印象的方式。',en:'Nobody wrote a hateful post. A negative image grew from <b>what was visible</b>: one group\'s incidents were recorded more, ranked higher, and seen more. That is how a stereotype can be taught without a single lie.'}
+});
+/* ---------- 12 ---------- */
+function adRound(st,bias){ const cA=.03; for(const g of ['N','S']){ const w=st[g]; const cB=.03+(g==='S'?bias:0); const rep=(w*cB)/(w*cB+(1-w)*cA); st[g]=clamp(0.6*w+0.4*rep+(rnd()-.5)*0.006,0.01,0.99); } }
+function drawAds(s){ const t=performance.now(); px(0,0,320,180,'#1d2b53');
+  const panes=[{g:'N',name:'SOLA',kind:'mint',x:6,lab:'NORTH NAME'},{g:'S',name:'TAVI',kind:'peach',x:166,lab:'SOUTH NAME'}];
+  for(const p of panes){ px(p.x,8,148,166,'#0b1030'); px(p.x+2,10,144,162,'#fff8ef'); tt(p.lab,p.x+74,14,'#6b6259',1,'center'); px(p.x+8,22,132,14,'#fff'); px(p.x+8,22,132,1,'#1d2b53'); px(p.x+8,35,132,1,'#1d2b53'); px(p.x+8,22,1,14,'#1d2b53'); px(p.x+139,22,1,14,'#1d2b53'); tt('SEARCH: '+p.name,p.x+12,27,'#1d2b53',1);
+   const w=s.ads[p.g]; const showB=(Math.floor(t/700+(p.g==='S'?.5:0))*9301%233)/233<w; px(p.x+8,42,132,30,showB?'#ffd0da':'#d6f1ff'); px(p.x+8,42,132,1,'#1d2b53'); tt('AD',p.x+12,46,'#6b6259',1); tt(showB?p.name+', ARRESTED?':'FIND '+p.name+': CONTACT',p.x+74,56,showB?'#b0103a':'#1d5f9a',1,'center');
+   tt("'ARRESTED?' SHARE",p.x+74,84,'#1d2b53',1,'center'); px(p.x+12,94,124,10,'#29adff'); px(p.x+12,94,Math.round(124*w),10,'#e8204e'); tt(Math.round(w*100)+'%',p.x+74,108,'#1d2b53',2,'center');
+   blob(p.x+60,128,p.kind,{s:3,bob:t/300}); }
+  tt('ROUND '+s.round,160,1,'#ffec27',1,'center'); }
+S({ch:1,
+ title:{ko:'누가 그 광고를 골랐나?',zh:'是谁选了那条广告？',en:'Who Chose the Ad?'},
+ story:{ko:'신원 조회 업체가 이름 검색에 광고를 겁니다. 업체는 <b>모든 이름에 똑같은 광고 문안 두 개</b>를 줍니다. <i>“솔라 찾기: 연락처”</i>와 <i>“솔라, 체포됨?”</i>. 버즈 검색은 50 대 50으로 시작해, <b>더 많이 클릭되는 문안을 더 자주</b> 보여 줍니다. 슬라이더는 남쪽에서 흔한 이름일 때만 ‘체포됨?’ 광고에 클릭을 조금 더 얹습니다.',
+        zh:'一家背景调查公司在姓名搜索上投放广告。它给<b>每个名字同样的两条广告文案</b>：<i>“查找 Sola：联系方式”</i>和<i>“Sola，被捕过？”</i>。Buzz 搜索从50对50开始，<b>哪条点击多就更常显示哪条</b>。滑块只在名字常见于南边时，给“被捕过？”广告多加一点点击。',
+        en:'A background-check company buys ads on name searches. It gives Buzz Search <b>the same two ad texts for every name</b>: <i>“Find Sola: contact info”</i> and <i>“Sola, Arrested?”</i>. Buzz Search starts at 50/50 and <b>shows more of whichever text gets clicked more</b>. The slider adds a small extra click rate on the “Arrested?” ad, but only for names common on the South side.'},
+ task:{ko:'보너스 0으로 30라운드, 0보다 큰 보너스로 다시 30라운드를 실행하세요.',zh:'加成为0时运行30轮，再用大于0的加成运行30轮。',en:'Run 30 rounds with the bonus at 0, then again with a bonus above 0.'},
+ init(s){ s.bias=0; s.ads={N:.5,S:.5}; s.round=0; s.series=[]; s.runs=[]; },
+ ui(s,box){ box.appendChild(slider({ko:'남쪽 이름의 ‘체포됨?’ 광고에 더해지는 클릭률',zh:'南边名字的“被捕过？”广告额外点击率',en:'Extra click rate on “Arrested?” for South names'},0,1.5,.25,s.bias*100,v=>'+'+v.toFixed(2)+'%p',v=>s.bias=v/100,[{ko:'3.00% (차이 없음)',zh:'3.00%（无差别）',en:'3.00% (no gap)'},{ko:'4.50%',zh:'4.50%',en:'4.50%'}]));
+  box.appendChild(row(btn({ko:'30라운드 실행',zh:'运行30轮',en:'Run 30 rounds'},()=>{ const bias=s.bias; s.ads={N:.5,S:.5}; s.round=0; const a={data:[50],color:'#3fa88a'}, b={data:[50],color:'#e8204e'}; s.series=[a,b]; play(30,110,()=>{ adRound(s.ads,bias); s.round++; a.data.push(Math.round(s.ads.N*100)); b.data.push(Math.round(s.ads.S*100)); },()=>{ const r={bias,N:s.ads.N,S:s.ads.S}; s.runs.push(r); if(bias>0){ PROG.data.ads={n:+(1-r.N).toFixed(2),s:+(1-r.S).toFixed(2),bias}; save(); } }); }))); },
+ draw(s){ drawAds(s); },
+ chart(s){ chartLine({series:s.series,xMax:30,xLabel:'ROUND',empty:'RUN TO SEE'}); legend([{color:'#3fa88a',label:{ko:'북쪽 이름 · ‘체포됨?’ 광고 비율',zh:'北边名字 ·“被捕过？”广告比例',en:'North names · share of “Arrested?” ad'}},{color:'#e8204e',label:{ko:'남쪽 이름 · ‘체포됨?’ 광고 비율',zh:'南边名字 ·“被捕过？”广告比例',en:'South names · share of “Arrested?” ad'}}]); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${L({ko:'보너스',zh:'加成',en:'bonus'})} +${(r.bias*100).toFixed(2)}%p → ${L({ko:'북',zh:'北',en:'N'})} <b>${Math.round(r.N*100)}%</b> · ${L({ko:'남',zh:'南',en:'S'})} <b>${Math.round(r.S*100)}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.bias===0)&&s.runs.some(r=>r.bias>0); },
+ quiz:{q:{ko:'남쪽 이름에 ‘체포됨?’ 광고를 더 자주 보여 주기로 정한 것은 누구인가요?',zh:'是谁决定对南边的名字更常显示“被捕过？”广告？',en:'Who decided to show the “Arrested?” ad more often for South names?'},
+  opts:[{ko:'광고 문안을 직접 쓴 광고주',zh:'亲自写文案的广告主',en:'The advertiser, who wrote the ad text'},{ko:'차별 규칙을 코딩한 엔지니어',zh:'写了歧视规则的工程师',en:'The engineers, who coded a rule'},{ko:'아무도 아님(클릭이 가르침)',zh:'没有人——是点击教的',en:'Nobody; the clicks taught the system'},{ko:'검색을 더 많이 한 남쪽 주민',zh:'搜索更多的南边居民',en:'South residents, by searching more'}],a:2,
+  why:{ko:'광고주는 모든 이름에 같은 문안을 줬고, 규칙은 ‘클릭 많은 쪽을 더 보여 준다’뿐이었습니다. 작은 클릭 차이가 쌓여 큰 격차가 되었습니다.',zh:'广告主给所有名字的文案都一样，规则也只是“哪条点击多就多显示”。微小的点击差异累积成了巨大的差距。',en:'The advertiser gave every name the same texts, and the rule was only “show more of what gets clicked.” A tiny click gap compounded into a large disparity.'}},
+ key:{ko:'Sweeney(2013)는 흑인을 연상시키는 이름을 검색하면 체포를 암시하는 광고가 더 자주 뜬다는 것을 보였습니다. 그가 제시한 가능성 하나는 광고 시스템이 <b>사람들의 클릭에서 배웠다</b>는 것입니다. 그렇다면 아무도 누구를 겨냥하지 않았는데도 사회의 편견이 클릭을 타고 들어온 셈입니다. Sweeney는 신중했습니다. 원인이 무엇인지는 <i>아직 모른다</i>고 썼습니다.',zh:'Sweeney（2013）发现，搜索带有黑人联想的名字时，暗示被捕的广告出现得更频繁。她提出的一种可能是：广告系统<b>从人们的点击中学习</b>。若是如此，没有人刻意针对谁，社会偏见却通过点击进入了系统。Sweeney 很谨慎：她写道，究竟是什么原因，<i>我们还不知道</i>。',en:'Sweeney (2013) found that searches for Black-identifying names were more likely to show ads suggesting an arrest. One possibility she raised: the ad system <b>learned from people\'s clicks</b>. If so, no one targeted anyone, yet society\'s bias entered through the clicks. She was careful: which cause it was, she wrote, <i>we do not yet know</i>.'}
+});
+/* ---------- 13 ---------- */
+function adsData(){ if(PROG.data.ads) return PROG.data.ads; const st={N:.5,S:.5}; for(let i=0;i<30;i++) adRound(st,.01); return {n:+(1-st.N).toFixed(2),s:+(1-st.S).toFixed(2),bias:.01,fallback:true}; }
+S({ch:1,
+ title:{ko:'바깥에서 감사하기: 80% 규칙',zh:'从外部审计：80% 规则',en:'Audit from Outside: The 80% Rule'},
+ story:{ko:'여러분은 버즈 검색의 코드를 볼 수 없습니다. Sweeney도 구글의 코드를 보지 못했습니다. 하지만 <b>결과</b>는 잴 수 있습니다. 미국 고용 지침에서 온 <b>80% 규칙</b>(5분의 4 규칙): 좋은 결과를 받은 비율이 <b>낮은</b> 집단의 값을 <b>높은</b> 집단의 값으로 나눕니다. 0.80 미만이면 불리 효과 가능성으로 표시합니다. 여기서 좋은 결과는 <b>중립 광고를 보는 것</b>입니다.',
+        zh:'你看不到 Buzz 搜索的代码，Sweeney 也看不到谷歌的代码。但<b>结果</b>是可以测量的。源自美国就业指南的<b>80% 规则</b>（五分之四规则）：用获得好结果比例<b>较低</b>的群体的数值，除以<b>较高</b>群体的数值。低于0.80，就标记为可能存在不利影响。这里的好结果是<b>看到中性广告</b>。',
+        en:'You cannot see Buzz Search\'s code; Sweeney could not see Google\'s either. But you can measure <b>outputs</b>. The <b>80% rule</b> (four-fifths rule), from U.S. employment guidelines: divide the <b>lower</b> group\'s rate of a good outcome by the <b>higher</b> group\'s rate. Below 0.80 → flag possible adverse impact. Here the good outcome is <b>seeing the neutral ad</b>.'},
+ task:{ko:'12단계 결과로 비율을 계산해(소수 둘째 자리) 입력하세요.',zh:'用第12关的结果计算比值（保留两位小数）并输入。',en:'Compute the ratio from your Stage 12 results (two decimals) and enter it.'},
+ init(s){ s.d=adsData(); s.ok=false; s.msg=''; },
+ ui(s,box){ const d=s.d; const w=el('div','slider'); w.innerHTML=`<div><b>${L({ko:'중립 광고를 본 비율',zh:'看到中性广告的比例',en:'Rate of seeing the neutral ad'})}</b></div><div>🟢 ${L({ko:'북쪽 이름',zh:'北边名字',en:'North names'})}: <span class="big pix" style="font-size:12px">${d.n.toFixed(2)}</span> &nbsp; 🟠 ${L({ko:'남쪽 이름',zh:'南边名字',en:'South names'})}: <span class="big pix" style="font-size:12px">${d.s.toFixed(2)}</span></div>${d.fallback?`<small>${L({ko:'(12단계 기록이 없어 예시 값을 썼습니다)',zh:'（没有第12关的记录，使用示例数值）',en:'(No Stage 12 record found, so sample values are used)'})}</small>`:''}<div class="row" style="margin-top:8px"><span>${L({ko:'낮은 값 ÷ 높은 값 =',zh:'较低值 ÷ 较高值 =',en:'lower ÷ higher ='})}</span><input id="ratioIn" type="number" step="0.01" min="0" max="1" style="width:90px;font:inherit;border:3px solid #0b1030;padding:3px"></div>`; box.appendChild(w); box.appendChild(row(btn({ko:'확인',zh:'检查',en:'Check'},()=>{ let v=parseFloat(String(document.getElementById('ratioIn').value).replace(',','.')); if(v>1&&v<=100) v=v/100; const tr=Math.min(d.n,d.s)/Math.max(d.n,d.s); if(isNaN(v)){ s.msg=tx({ko:'숫자를 입력하세요.',zh:'请输入数字。',en:'Enter a number.'}); } else if(Math.abs(v-tr)<=0.015){ s.ok=true; s.ratio=+tr.toFixed(2); PROG.data.ratio=s.ratio; save(); s.msg=''; } else { s.msg=tx({ko:'계산을 다시 해 보세요. 낮은 값을 높은 값으로 나눕니다.',zh:'再算一遍：用较低值除以较高值。',en:'Try again: divide the lower value by the higher one.'}); } }))); },
+ draw(s){ drawAds({ads:{N:1-s.d.n,S:1-s.d.s},round:30}); px(0,170,320,10,'#1d2b53'); tt(s.ok?('RATIO = '+s.ratio.toFixed(2)+(s.ratio<.8?'  < 0.80 FLAG!':'  >= 0.80')):'RATIO = ?',160,172,'#ffec27',1,'center'); },
+ chart(s){ chartBars([{label:'NORTH',v:s.d.n*100,color:'#7fe0c0',text:s.d.n.toFixed(2)},{label:'SOUTH',v:s.d.s*100,color:'#ffb38a',text:s.d.s.toFixed(2)},{label:'RATIO',v:s.ok?s.ratio*100:0,color:s.ok&&s.ratio<.8?'#e8204e':'#00a050',text:s.ok?s.ratio.toFixed(2):'?'}],{hlines:[{v:80,color:'#e8204e',label:'0.80'}]}); legend([{color:'#7fe0c0',label:{ko:'북쪽 이름: 중립 광고 비율',zh:'北边名字：中性广告比例',en:'North names: neutral-ad rate'}},{color:'#ffb38a',label:{ko:'남쪽 이름: 중립 광고 비율',zh:'南边名字：中性广告比例',en:'South names: neutral-ad rate'}}]); },
+ readout(s){ return s.msg?`<div class="card" style="background:#ffe3e8">${s.msg}</div>`:(s.ok?`<div class="card">${L({ko:'비율',zh:'比值',en:'Ratio'})} = <span class="big">${s.ratio.toFixed(2)}</span></div>`:''); },
+ done(s){ return s.ok; },
+ quiz:{q:{ko:'이 결과는 80% 규칙을 통과하나요?',zh:'这个结果通过80% 规则了吗？',en:'Does this result pass the 80% rule?'},
+  opts:[{ko:'통과: 비율이 0.80 이상',zh:'通过：比值在0.80以上',en:'Pass: the ratio is 0.80 or higher'},{ko:'미달: 비율이 0.80 미만',zh:'未通过：比值低于0.80',en:'Fail: the ratio is less than 0.80'},{ko:'코드를 보지 않고는 알 수 없다',zh:'不看源代码就无法作出判断',en:"Can't tell without seeing the code"}],a:s=>(s.ratio>=.8?0:1),
+  why:{ko:'규칙은 결과만 봅니다. 코드를 몰라도 판정할 수 있다는 것이 바깥 감사의 힘입니다.',zh:'这个规则只看结果。不看代码也能判断，这正是外部审计的力量。',en:'The rule looks only at outcomes. Being able to judge without the code is the power of an outside audit.'}},
+ key:{ko:'바깥 감사에는 입력과 출력만 있으면 됩니다. 그래서 연구자가 <b>출력에 접근할 수 있는가</b>가 중요하고, 또 그래서 자주 다툼이 됩니다. (6주차 활동 THE DEFAULT SETTING에서 이 산식을 빌려 썼습니다.)',zh:'外部审计只需要输入和输出。因此研究者<b>能否获取输出</b>至关重要，也因此常常引发争议。（第6周课堂活动 THE DEFAULT SETTING 也借用了这个公式。）',en:'An outside audit needs only inputs and outputs. That is why <b>researcher access to outputs</b> matters, and why it is often contested. (Our Week 6 activity, THE DEFAULT SETTING, borrowed this formula.)'}
+});
+
+/* =========================================================
+   CHAPTER 3: generator
+   ========================================================= */
+function amp(p,T){ const a=Math.pow(p,1/T), b=Math.pow(1-p,1/T); return a/(a+b); }
+function dialT(d){ return 0.2+0.8*Math.pow(d,1.5); }
+function makeArchive(){ const r=mulberry(279); const k=[...Array(100)].map((_,i)=>i<70?'mint':'peach'); for(let i=99;i>0;i--){ const j=Math.floor(r()*(i+1)); [k[i],k[j]]=[k[j],k[i]]; } return k.map((kind,i)=>({kind,x:10+(i%10)*15,y:20+Math.floor(i/10)*15.6,tx:0,ty:0})); }
+function bot2(x,y,t){ // Buzz Draw robot with easel
+  spr(["..OOOOO..",".OGGGGGO.","OGWGGGWGO","OGGGGGGGO","OGGRRRGGO",".OGGGGGO.","..OOOOO..","...O.O...","..OO.OO.."],x,y,{O:'#1d2b53',G:'#c2c3c7',W:'#29adff',R:'#ff77a8'},2);
+  px(x+22,y+2,26,22,'#ab5236'); px(x+24,y+4,22,18,'#fff8ef'); px(x+26,y+24,2,8,'#ab5236'); px(x+42,y+24,2,8,'#ab5236'); const k=Math.floor(t/400)%2?'mint':'peach'; portrait(x+30,y+7,k,1);
+}
+/* ---------- 14 ---------- */
+S({ch:2,
+ title:{ko:'오래된 사진 보관소',zh:'老照片档案馆',en:'The Old Photo Archive'},
+ story:{ko:'버즈가 이미지 도구 <b>버즈 드로우</b>를 만듭니다. 이 도구는 마을 사진 보관소에서 ‘엔지니어’가 어떻게 생겼는지 배웁니다. 지난 50년간의 엔지니어 사진 100장입니다. 그 기간 대부분, 공대는 피치 주민을 거의 받지 않았습니다.',
+        zh:'Buzz 正在开发图像工具 <b>Buzz Draw</b>。它从小镇照片档案馆学习“工程师”长什么样：过去50年的100张工程师照片。在那段时间的大部分时候，工学院几乎不招收蜜桃居民。',
+        en:'Buzz is building an image tool, <b>Buzz Draw</b>. It learns what “an engineer” looks like from the town\'s photo archive: 100 photos of engineers from the past 50 years. For most of those years, engineering schools rarely admitted Peach folk.'},
+ task:{ko:'보관소를 분류한 뒤 예측하세요.',zh:'先给档案分类，然后做预测。',en:'Sort the archive, then make a prediction.'},
+ init(s){ s.A=makeArchive(); s.sorted=false; s.A.forEach(p=>{p.tx=p.x;p.ty=p.y;}); },
+ ui(s,box){ box.appendChild(row(btn({ko:'보관소 분류하기',zh:'给档案分类',en:'Sort the archive'},()=>{ s.sorted=true; let m=0,p=0; s.A.forEach(o=>{ if(o.kind==='mint'){ o.tx=10+(m%7)*15; o.ty=20+Math.floor(m/7)*15.6; m++; } else { o.tx=128+(p%3)*15; o.ty=20+Math.floor(p/3)*15.6; p++; } }); }))); },
+ tick(s){ s.A.forEach(o=>{ o.x+=(o.tx-o.x)*0.08; o.y+=(o.ty-o.y)*0.08; }); },
+ draw(s){ px(0,0,320,180,'#2b2140'); px(0,0,320,14,'#1d2b53'); tt('TOWN PHOTO ARCHIVE: ENGINEERS 1975-2025',160,4,'#ffec27',1,'center'); for(let i=0;i<14;i++) px(i*23,170,20,10,'#3d2f5a'); s.A.forEach(o=>portrait(o.x,o.y,o.kind,1)); if(s.sorted){ px(186,30,126,60,'#1d2b53'); tt('MINT  70',249,40,'#7fe0c0',2,'center'); tt('PEACH 30',249,64,'#ffb38a',2,'center'); } bot2(196,108,performance.now()); },
+ chart(s){ chartBars(s.sorted?[{label:'MINT',v:70,color:'#7fe0c0',text:'70%'},{label:'PEACH',v:30,color:'#ffb38a',text:'30%'}]:[{label:'?',v:0,color:'#ccc',text:'?'}]); legend([{color:'#7fe0c0',label:{ko:'보관소 속 민트 엔지니어',zh:'档案中的薄荷工程师',en:'Mint engineers in the archive'}},{color:'#ffb38a',label:{ko:'보관소 속 피치 엔지니어',zh:'档案中的蜜桃工程师',en:'Peach engineers in the archive'}}]); },
+ done(s){ return s.sorted; },
+ quiz:{type:'predict',q:{ko:'가장 안전한 설정에서 버즈 드로우에 ‘엔지니어’를 그려 달라고 하면, 민트는 몇 %일까요?',zh:'在最保守的设置下让 Buzz Draw 画“工程师”，薄荷居民会占多少？',en:'Asked for “an engineer” on its safest setting, what share of Buzz Draw\'s pictures will be Mint?'},
+  opts:[{ko:'약 30%',zh:'约30%',en:'About 30%'},{ko:'약 50%',zh:'约50%',en:'About 50%'},{ko:'약 70%',zh:'约70%',en:'About 70%'},{ko:'70%보다 훨씬 많이',zh:'远超70%',en:'Well over 70%'}]},
+ key:{ko:'데이터는 과거의 기록입니다. <b>누가 들어올 수 있었는지</b>까지 포함해서요. 그 기록으로 학습한 모델은 역사를 정의처럼 배웁니다.',zh:'数据是过去的记录，连<b>谁被允许进入</b>也记录在内。用这份记录训练的模型，会把历史当作定义来学习。',en:'Data are a record of the past, including <b>who was allowed in</b>. A model trained on that record learns history as if it were a definition.'}
+});
+/* ---------- 15 ---------- */
+function drawGen(s,head){ const t=performance.now(); px(0,0,320,180,'#2b2140'); px(0,0,320,14,'#1d2b53'); tt(head,160,4,'#ffec27',1,'center'); bot2(6,40,t);
+  (s.out||[]).forEach((k,i)=>{ if(i>=s.shown) return; const x=74+(i%10)*24, y=26+Math.floor(i/10)*30; portrait(x,y,k,2); if(s.liked&&s.liked[i]) heart(x+14,y-2); });
+  const bar=(y,lab,m)=>{ tt(lab,6,y+2,'#fff8ef',1); px(64,y,240,9,'#ffb38a'); px(64,y,Math.round(240*m),9,'#7fe0c0'); tt(Math.round(m*100)+'% MINT',300,y+2,'#1d2b53',1,'right'); };
+  bar(150,'ARCHIVE',.70); if(s.lastShare!=null) bar(164,'OUTPUT',s.lastShare); }
+S({ch:2,
+ title:{ko:'기본값',zh:'默认值',en:'The Default Setting'},
+ story:{ko:'버즈 드로우에는 <b>안전하게</b>부터 <b>모험적으로</b>까지 다이얼이 있습니다. 안전하게 그린다는 것은 <b>가장 전형적인</b> 엔지니어를 계속 그린다는 뜻입니다. 엔지니어 20명을 생성해 보관소와 비교하세요.',
+        zh:'Buzz Draw 有一个从<b>保守</b>到<b>大胆</b>的旋钮。保守地画，就是一遍又一遍地画<b>最典型</b>的工程师。生成20位工程师，与档案比较。',
+        en:'Buzz Draw has a dial from <b>Play it safe</b> to <b>Take risks</b>. Playing it safe means drawing the <b>most typical</b> engineer, over and over. Generate 20 engineers and compare with the archive.'},
+ task:{ko:'다이얼을 왼쪽 끝(안전하게) 근처에서 한 번, 오른쪽 끝(모험적으로) 근처에서 한 번 생성하세요.',zh:'把旋钮放在最左（保守）附近生成一次，再放在最右（大胆）附近生成一次。',en:'Generate once near the left end (Play it safe) and once near the right end (Take risks).'},
+ init(s){ s.d=0; s.out=[]; s.shown=0; s.runs=[]; s.lastShare=null; },
+ ui(s,box){ box.appendChild(slider({ko:'다이얼',zh:'旋钮',en:'Dial'},0,1,.25,s.d,v=>v===0?'SAFE':v===1?'RISKY':v.toFixed(2),v=>s.d=v,[{ko:'안전하게',zh:'保守',en:'Play it safe'},{ko:'모험적으로',zh:'大胆',en:'Take risks'}]));
+  box.appendChild(row(btn({ko:'엔지니어 20명 생성',zh:'生成20位工程师',en:'Generate 20 engineers'},()=>{ const d=s.d, p=amp(.7,dialT(d)); s.out=[...Array(20)].map(()=>rnd()<p?'mint':'peach'); s.shown=0; play(20,60,()=>{ s.shown++; },()=>{ const m=s.out.filter(k=>k==='mint').length/20; s.lastShare=m; s.runs.push({d,m,exp:p}); if(d===0){ PROG.data.safeShare=Math.round(m*100); save(); } }); }))); },
+ draw(s){ drawGen(s,'BUZZ DRAW: "AN ENGINEER"'); },
+ chart(s){ chartBars([{label:'ARCHIVE',v:70,color:'#7e2553',text:'70%'},...s.runs.slice(-5).map(r=>({label:r.d===0?'SAFE':r.d===1?'RISKY':'D '+r.d.toFixed(2),v:r.m*100,color:'#7fe0c0',text:Math.round(r.m*100)+'%'}))]); legend([{color:'#7e2553',label:{ko:'보관소의 민트 비율',zh:'档案中的薄荷比例',en:'Mint share in the archive'}},{color:'#7fe0c0',label:{ko:'생성 그림의 민트 비율',zh:'生成图中的薄荷比例',en:'Mint share in generated pictures'}}]); },
+ readout(s){ if(!s.runs.length) return ''; const p=PROG.pred[13]; const pl=p!=null?L(STAGES[13].quiz.opts[p]):'—'; const nm=d=>d<=.25?L({ko:'안전하게',zh:'保守',en:'Play it safe'}):d>=.75?L({ko:'모험적으로',zh:'大胆',en:'Take risks'}):L({ko:'다이얼',zh:'旋钮',en:'dial'})+' '+d.toFixed(2); return `<div class="card">${s.runs.slice(-4).map(r=>`${nm(r.d)} → ${L({ko:'민트',zh:'薄荷',en:'Mint'})} <b>${Math.round(r.m*100)}%</b> <small>(${L({ko:'평균 기대값',zh:'平均期望值',en:'long-run average'})} ${Math.round(r.exp*100)}%)</small>`).join('<br>')}<br>${L({ko:'14단계 내 예측',zh:'第14关我的预测',en:'My Stage 14 prediction'})}: <b>${pl}</b></div>`; },
+ done(s){ return s.runs.some(r=>r.d<=.25)&&s.runs.some(r=>r.d>=.75); },
+ quiz:{q:{ko:'‘안전하게’에서 도구는 보관소보다 더 많은 민트 엔지니어를 그렸습니다. 왜인가요?',zh:'在“保守”设置下，工具画出的薄荷工程师比档案里还多。为什么？',en:'On “Play it safe,” the tool drew more Mint engineers than the archive had. Why?'},
+  opts:[{ko:'가장 전형적인 모습을 골라서',zh:'它挑选最典型的样子',en:'It picks the most typical look'},{ko:'프로그래머가 민트를 고르라고 해서',zh:'程序员让它选薄荷',en:'A programmer told it to pick Mint'},{ko:'피치 엔지니어가 금지되어서',zh:'蜜桃工程师被禁止了',en:'Peach engineers were banned'},{ko:'피치색 물감이 떨어져서',zh:'蜜桃色颜料用完了',en:'It ran out of peach paint'}],a:0,
+  why:{ko:'70%의 다수 패턴이 ‘가장 그럴듯한 답’이 되어 90%가 넘는 기본값으로 굳었습니다.',zh:'70%的多数模式成了“最可能的答案”，固化为超过90%的默认值。',en:'The 70% majority became “the most likely answer” and hardened into a 90%-plus default.'}},
+ key:{ko:'생성기는 가장 전형적인 이미지로 기울기 때문에 70%의 패턴이 <b>90% 이상의 기본값</b>이 될 수 있습니다. Browne(2010)은 기술이 ‘정상’으로 취급하는 몸을 <i>원형(prototype)</i>으로 다룹니다. 화요일 DEFAULT SETTING 활동을 떠올려 보세요. ‘CEO’와 ‘간호사’를 요청했을 때 도구는 누구를 그렸습니까?',zh:'生成器偏向最典型的图像，所以70%的模式可能变成<b>超过90%的默认值</b>。Browne（2010）讨论了技术当作“正常”的身体——<i>原型（prototype）</i>。回想周二的 DEFAULT SETTING 活动：你请求“CEO”和“护士”时，工具画的是谁？',en:'Generators lean toward the most typical image, so a 70% pattern can become a <b>90%-plus default</b>. Browne (2010) examines the body a technology treats as normal, the <i>prototype</i>. Recall Tuesday\'s DEFAULT SETTING activity: who did your tool draw for “a CEO” and “a nurse”?'}
+});
+/* ---------- 16 ---------- */
+S({ch:2,
+ title:{ko:'좋아요의 힘',zh:'点赞的力量',en:'Thumbs Up, Thumbs Down'},
+ story:{ko:'버즈 드로우를 개선하려고 평가자들이 ‘진짜 엔지니어 같아 보이는’ 그림에 ❤를 줍니다. 모델은 ❤를 받은 그림으로 다시 학습합니다. 슬라이더는 평가자들이 <b>악의가 아니라 습관 때문에</b> 피치 엔지니어에게 ❤를 얼마나 덜 주는지 정합니다.',
+        zh:'为改进 Buzz Draw，评审员给“看起来像真正工程师”的图片点 ❤。模型再用获得 ❤ 的图片重新训练。滑块设定评审员<b>出于习惯而非恶意</b>，给蜜桃工程师少点多少 ❤。',
+        en:'To improve Buzz Draw, raters give a ❤ to pictures that “look like a real engineer.” The model then retrains on the liked pictures. The slider sets how much less often raters like Peach engineers, <b>out of habit, not malice</b>.'},
+ task:{ko:'평가자 격차를 0보다 크게 두고 10라운드를 실행하세요.',zh:'把评审差距设为大于0，运行10轮。',en:'Set a rater gap above 0 and run 10 rounds.'},
+ init(s){ s.gap=.1; s.m=.7; s.out=[]; s.shown=0; s.liked=[]; s.series=[]; s.runs=[]; s.lastShare=null; },
+ ui(s,box){ box.appendChild(slider({ko:'평가자 격차(피치 그림에 ❤를 덜 주는 정도)',zh:'评审差距（给蜜桃图少点 ❤ 的程度）',en:'Rater gap (fewer ❤ for Peach pictures)'},0,.3,.05,s.gap,v=>'-'+Math.round(v*100)+'%p',v=>s.gap=v,[{ko:'차이 없음',zh:'无差别',en:'no gap'},{ko:'60% vs 30%',zh:'60% vs 30%',en:'60% vs 30%'}]));
+  box.appendChild(row(btn({ko:'10라운드 실행',zh:'运行10轮',en:'Run 10 rounds'},()=>{ const gap=s.gap; s.m=.7; const ser={data:[70],color:COLORS[s.runs.length%5],label:'-'+Math.round(gap*100)+'%p'}; s.series.push(ser); if(s.series.length>3) s.series.shift(); play(10,450,()=>{ s.out=[...Array(20)].map(()=>rnd()<s.m?'mint':'peach'); s.shown=20; s.liked=s.out.map(k=>rnd()<(k==='mint'?.6:.6-gap)); const lm=s.m*.6, lp=(1-s.m)*(.6-gap); s.m=clamp(0.5*s.m+0.5*(lm/(lm+lp)),0,1); s.lastShare=s.m; ser.data.push(Math.round(s.m*100)); },()=>{ s.runs.push({gap,m:s.m}); }); }))); },
+ draw(s){ drawGen(s,'RATERS: "LOOKS LIKE AN ENGINEER?"'); },
+ chart(s){ chartLine({series:s.series,xMax:10,xLabel:'ROUND',hlines:[{v:70,color:'#7e2553',label:'ARCHIVE 70%'}]}); legend(s.series.map(x=>({color:x.color,label:{ko:'격차 '+x.label+' · 모델의 민트 비율',zh:'差距 '+x.label+' · 模型的薄荷比例',en:'gap '+x.label+' · model\'s Mint share'}}))); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${L({ko:'격차',zh:'差距',en:'gap'})} ${Math.round(r.gap*100)}%p → ${L({ko:'민트',zh:'薄荷',en:'Mint'})} <b>${Math.round(r.m*100)}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.gap>0); },
+ quiz:{q:{ko:'아무도 시키지 않았는데 모델이 민트 쪽으로 기울었습니다. 무엇이 그 기울기를 키웠나요?',zh:'没有人要求，模型却偏向了薄荷。是什么推动了这种偏移？',en:'The model drifted toward Mint though no one told it to. What fed the drift?'},
+  opts:[{ko:'보관소에 민트 사진이 새로 들어와서',zh:'档案里新增了薄荷照片',en:'The archive got new Mint photos'},{ko:'개발자가 설정을 몰래 바꿔서',zh:'开发者偷偷改了设置',en:'The engineers changed the settings'},{ko:'피치 주민이 앱을 그만 써서',zh:'蜜桃居民不再用这个应用',en:'Peach folk stopped using the app'},{ko:'평가자가 민트 그림을 더 좋아해서',zh:'评审员更喜欢薄荷图',en:'Raters liked Mint pictures more'}],a:3,
+  why:{ko:'모델은 ❤를 받은 그림을 배웁니다. 평가자의 작은 습관이 학습 신호가 되었습니다.',zh:'模型学习获得 ❤ 的图片。评审员的小习惯变成了训练信号。',en:'The model learns from liked pictures. The raters\' small habit became a training signal.'}},
+ key:{ko:'사람의 피드백이 저절로 중립적인 것은 아닙니다. 평가자에게 기대가 있으면 모델은 <b>그 기대를 배웁니다</b>. 클릭 대신 ❤가 들어간, 또 하나의 클릭 고리입니다.',zh:'人类反馈并非天然中立。评审员带着预期，模型就会<b>学到这种预期</b>。这是另一个点击循环，只是把点击换成了 ❤。',en:'Human feedback is not neutral by default. If raters carry an expectation, the model <b>learns the expectation</b>. It is the click loop again, with ❤ instead of clicks.'}
+});
+/* ---------- 17 ---------- */
+S({ch:2,
+ title:{ko:'자기 출력을 먹는 모델',zh:'吃掉自己输出的模型',en:'Eating Its Own Output'},
+ story:{ko:'버즈 드로우의 그림이 웹에 넘쳐납니다. 내년 모델은 웹 이미지로 학습합니다. 실제 사진과 작년 AI 그림이 섞인 데이터입니다. 슬라이더는 학습 데이터 중 <b>AI가 만든 것의 비율</b>을 정합니다.',
+        zh:'Buzz Draw 的图片充斥网络。明年的模型用网络图片训练——真实照片和去年的 AI 图片混在一起。滑块设定训练数据中<b>AI 生成内容的比例</b>。',
+        en:'Buzz Draw\'s pictures flood the web. Next year\'s model trains on web images: real photos mixed with last year\'s AI pictures. The slider sets <b>how much of the training data is AI-made</b>.'},
+ task:{ko:'AI 비율 20% 이하로 한 번, 60% 이상으로 한 번, 8세대씩 실행하세요.',zh:'AI 比例≤20% 运行一次，≥60% 再运行一次，各8代。',en:'Run 8 generations twice: once with AI-made at 20% or less, once at 60% or more.'},
+ init(s){ s.mix=.7; s.series=[]; s.runs=[]; s.gens=[]; },
+ ui(s,box){ box.appendChild(slider({ko:'학습 데이터 중 AI가 만든 비율',zh:'训练数据中 AI 生成的比例',en:'AI-made share of training data'},0,.9,.1,s.mix,v=>Math.round(v*100)+'%',v=>s.mix=v));
+  box.appendChild(row(btn({ko:'8세대 실행',zh:'运行8代',en:'Run 8 generations'},()=>{ const mix=s.mix; let train=.7; s.gens=[]; const ser={data:[70],color:COLORS[s.runs.length%5],label:Math.round(mix*100)+'%'}; s.series.push(ser); if(s.series.length>3) s.series.shift(); play(8,380,()=>{ const out=amp(train,0.6); s.gens.push(out); ser.data.push(Math.round(out*100)); train=(1-mix)*.7+mix*out; },()=>{ s.runs.push({mix,end:s.gens[s.gens.length-1]}); }); }))); },
+ draw(s){ const t=performance.now(); px(0,0,320,180,'#2b2140'); px(0,0,320,14,'#1d2b53'); tt('EACH YEAR: TRAIN ON THE WEB, THEN DRAW 12',160,4,'#ffec27',1,'center'); bot2(6,50,t);
+  s.gens.forEach((m,g)=>{ const y=18+g*19.5; tt('Y'+(g+1),78,y+4,'#fff8ef',1); const nm=Math.round(m*12); for(let i=0;i<12;i++) portrait(92+i*18,y,i<nm?'mint':'peach',1); tt(Math.round(m*100)+'%',318,y+4,'#ffec27',1,'right'); }); },
+ chart(s){ chartLine({series:s.series,xMax:8,xLabel:'YEAR',hlines:[{v:70,color:'#7e2553',label:'REAL 70%'}]}); legend(s.series.map(x=>({color:x.color,label:{ko:'AI 비율 '+x.label+' · 출력의 민트 비율',zh:'AI 比例 '+x.label+' · 输出的薄荷比例',en:'AI-made '+x.label+' · Mint share of output'}}))); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${L({ko:'AI 비율',zh:'AI 比例',en:'AI-made'})} ${Math.round(r.mix*100)}% → ${L({ko:'8년 뒤 민트',zh:'8年后薄荷',en:'Mint after 8 years'})} <b>${Math.round(r.end*100)}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.mix<=.2)&&s.runs.some(r=>r.mix>=.6); },
+ quiz:{q:{ko:'AI가 만든 학습 데이터가 많을 때 민트 비율은 왜 계속 올랐나요?',zh:'当 AI 生成的训练数据很多时，薄荷比例为什么一直上升？',en:'With lots of AI-made training data, why did the Mint share keep rising?'},
+  opts:[{ko:'실제 보관소가 해마다 바뀌어서',zh:'真实档案每年都在变',en:'The real archive kept changing every year'},{ko:'모델이 앞 모델의 쏠림을 베껴서',zh:'模型复制了前代偏差',en:"Each new model copied the last one's skew"},{ko:'합성 그림은 늘 품질이 낮아서',zh:'合成图片质量总是更差',en:'Synthetic images are always lower quality'},{ko:'사람들이 민트 셀카를 더 올려서',zh:'人们上传了更多薄荷自拍',en:'People uploaded more Mint selfies online'}],a:1,
+  why:{ko:'실제 사진은 70%로 그대로였습니다. 커진 것은 모델이 모델에게서 물려받은 쏠림입니다.',zh:'真实照片一直是70%。变大的，是模型从模型那里继承来的偏差。',en:'Real photos stayed at 70%. What grew was the skew models inherited from models.'}},
+ key:{ko:'모델이 모델이 만든 데이터로 배우면 작은 쏠림이 세대를 거치며 <b>복리로</b> 커집니다. 이 현상을 연구하는 사람들은 <b>드문 사례부터 사라진다</b>고 경고합니다.',zh:'模型用模型生成的数据学习时，小偏差会一代代<b>复利式</b>放大。研究这一现象的学者警告：<b>少见的情况最先消失</b>。',en:'When models learn from model-made data, small skews <b>compound</b> across generations. Researchers studying this warn that <b>rare cases disappear first</b>.'}
+});
+/* ---------- 18 ---------- */
+S({ch:2,
+ title:{ko:'기회는 누구에게 보이나?',zh:'机会被谁看见？',en:'Who Sees the Opportunity?'},
+ story:{ko:'진로 앱이 학생들에게 무료 <b>엔지니어링 캠프</b> 광고를 합니다. <b>유사 타깃팅</b>을 켜면 지금의 엔지니어와 닮은 아이들에게 주로 광고를 보여 줍니다. 공학에 대한 관심은 두 집단이 <b>똑같습니다</b>. 캠프 수료생은 미래의 엔지니어가 되고, 미래의 보관소 사진이 됩니다.',
+        zh:'一款升学规划应用向学生推广免费的<b>工程夏令营</b>。开启<b>相似人群定向</b>后，广告主要推给长得像现有工程师的孩子。两个群体对工程的兴趣<b>完全相同</b>。夏令营结业生会成为未来的工程师，也会成为未来档案里的照片。',
+        en:'A career app advertises a free <b>Engineering Camp</b> to school kids. With <b>lookalike targeting</b> on, it shows the ad mostly to kids who resemble today\'s engineers. Interest in engineering is <b>the same</b> in both groups. Camp graduates become future engineers, and future photos in the archive.'},
+ task:{ko:'유사 타깃팅을 켜고 10년, 끄고 10년을 실행하세요.',zh:'开启相似人群定向运行10年，关闭后再运行10年。',en:'Run 10 school years with lookalike targeting ON, then OFF.'},
+ init(s){ s.look=true; s.q=.3; s.year=0; s.series=[]; s.runs=[]; s.ad={m:0,p:0}; s.kids=[...Array(20)].map((_,i)=>({kind:i%2?'peach':'mint',x:14+(i%10)*20,y:i<10?70:112,ph:i})); },
+ ui(s,box){ box.appendChild(seg([{v:true,label:{ko:'유사 타깃팅 켬',zh:'相似定向：开',en:'Lookalike: ON'}},{v:false,label:{ko:'유사 타깃팅 끔',zh:'相似定向：关',en:'Lookalike: OFF'}}],s.look,v=>s.look=v));
+  box.appendChild(row(btn({ko:'10년 실행',zh:'运行10年',en:'Run 10 years'},()=>{ const look=s.look; s.q=.3; s.year=0; const ser={data:[30],color:look?'#e8204e':'#00a050',label:look?{ko:'켬',zh:'开',en:'ON'}:{ko:'끔',zh:'关',en:'OFF'}}; s.series=s.series.filter(x=>x.label.en!==ser.label.en); s.series.push(ser); play(10,420,()=>{ const q=s.q; const e=look? (q*q)/(q*q+(1-q)*(1-q)) : .5; const mx=Math.max(e,1-e); s.ad={p:Math.round(10*e/mx),m:Math.round(10*(1-e)/mx)}; s.q=.8*q+.2*e; s.year++; ser.data.push(Math.round(s.q*100)); },()=>{ s.runs.push({look,end:s.q}); }); }))); },
+ draw(s){ const t=performance.now(); px(0,0,320,180,'#8fd18a'); px(0,0,320,14,'#1d2b53'); tt('YEAR '+s.year+'   PEACH SHARE OF ENGINEERS '+Math.round(s.q*100)+'%',160,4,'#ffec27',1,'center');
+  px(4,40,206,110,'#e9d3a0'); tt('SCHOOL',8,44,'#7e2553',1);
+  let pm=0,pp=0; s.kids.forEach(k=>{ blob(k.x,k.y,k.kind,{bob:t/300+k.ph}); const got=k.kind==='mint'?(pm++<s.ad.m/2):(pp++<s.ad.p/2); if(s.year>0&&got){ px(k.x+1,k.y-10,8,6,'#1d2b53'); px(k.x+2,k.y-9,6,4,'#fff8ef'); px(k.x+2,k.y-9,6,1,'#e8204e'); } });
+  px(226,36,88,80,'#c2c3c7'); px(226,36,88,10,'#1d2b53'); tt('ENG CAMP',270,39,'#ffec27',1,'center'); for(let i=0;i<3;i++) px(236+i*26,54,14,12,'#29adff'); px(262,92,16,24,'#ab5236');
+  for(let i=0;i<10;i++){ const k=i<Math.round(s.q*10)?'peach':'mint'; portrait(222+(i%5)*19,124+Math.floor(i/5)*26,k,1.5); } tt('ENGINEERS',270,174,'#1d2b53',1,'center'); },
+ chart(s){ chartLine({series:s.series,xMax:10,xLabel:'YEAR',hlines:[{v:50,color:'#29adff',label:'EQUAL INTEREST 50%'}]}); legend(s.series.map(x=>({color:x.color,label:{ko:'유사 타깃팅 '+x.label.ko+' · 엔지니어 중 피치 비율',zh:'相似定向 '+x.label.zh+' · 工程师中蜜桃比例',en:'Lookalike '+x.label.en+' · Peach share of engineers'}}))); },
+ readout(s){ if(!s.runs.length) return ''; return `<div class="card">${s.runs.slice(-4).map(r=>`${r.look?L({ko:'켬',zh:'开',en:'ON'}):L({ko:'끔',zh:'关',en:'OFF'})}: 30% → <b>${Math.round(r.end*100)}%</b>`).join('<br>')}</div>`; },
+ done(s){ return s.runs.some(r=>r.look)&&s.runs.some(r=>!r.look); },
+ quiz:{q:{ko:'유사 타깃팅을 켜자 엔지니어 중 피치 비율이 떨어졌습니다. 무엇 때문인가요?',zh:'开启相似人群定向后，工程师中的蜜桃比例下降了。为什么？',en:'With lookalike targeting on, the Peach share of engineers fell. What drove it?'},
+  opts:[{ko:'피치 아이들이 과학에 관심이 적어서',zh:'蜜桃孩子对科学不感兴趣',en:'Peach kids were less interested in science'},{ko:'남쪽 학교들이 실험실을 닫아서',zh:'南边学校关闭了实验室',en:'Schools in the South closed their labs'},{ko:'광고·지원자·엔지니어가 줄어서',zh:'广告少→申请少→工程师少',en:'Fewer ads, fewer applicants, fewer hires'},{ko:'캠프가 피치 지원자 수를 제한해서',zh:'夏令营限制了蜜桃申请人数',en:'The camp put a cap on Peach applicants'}],a:2,
+  why:{ko:'관심은 같았습니다. 광고를 덜 본 집단이 덜 지원했고, 그 결과가 다음 해의 ‘닮은 사람’ 기준이 되었습니다.',zh:'兴趣是一样的。看到广告少的群体申请得少，而这个结果又成了下一年“相似人群”的标准。',en:'Interest was equal. The group that saw fewer ads applied less, and that result became next year\'s definition of “lookalike.”'}},
+ key:{ko:'고정관념은 머릿속 그림에 그치지 않습니다. <b>누구에게 기회를 보여 줄지</b>를 정합니다. 광고를 본 사람이 지원하고, 지원한 사람이 내일의 데이터가 됩니다. Gangadharan의 경고처럼, 시스템에 포함되는 것 자체가 사람을 분류할 수 있습니다.',zh:'刻板印象不只是脑海中的画面，它决定了<b>机会展示给谁</b>。看到广告的人去申请，申请的人成为明天的数据。正如 Gangadharan 所警示的，被纳入系统本身就可能把人分类。',en:'A stereotype is not just a picture in our heads; it decides <b>who is shown an opportunity</b>. Who sees the ad decides who applies, and who applies becomes tomorrow\'s data. As Gangadharan warns, being included in a system can itself sort people.'}
+});
+/* ---------- 19 ---------- */
+const MECH=[
+ {ko:'되먹임 고리: 데이터는 우리가 보는 곳을 따른다',zh:'反馈循环：数据跟随我们观察的地方',en:'Feedback loop: data follow where we look'},
+ {ko:'클릭 고리: 시스템이 이용자의 편견을 배운다',zh:'点击循环：系统学到用户的偏见',en:'Click loop: the system learns users\' biases'},
+ {ko:'기본값: 가장 전형적인 것이 기준이 된다',zh:'默认值：最典型的成为标准',en:'Default: the most typical becomes the norm'},
+ {ko:'재순환: 출력이 미래의 학습 데이터가 된다',zh:'再循环：输出变成未来的训练数据',en:'Recycling: outputs become future training data'},
+];
+const SCENES=[
+ {t:{ko:'‘엔지니어’를 요청하면 버즈 드로우는 거의 항상 민트를 그린다.',zh:'请求“工程师”时，Buzz Draw 几乎总是画薄荷居民。',en:'Asked for “an engineer,” Buzz Draw almost always draws Mint.'},a:2},
+ {t:{ko:'순찰봇이 어제 기록이 있던 곳으로 로봇을 보낸다.',zh:'巡逻机器人把机器人派到昨天有记录的地方。',en:'PatrolBot sends bots where yesterday\'s records were.'},a:0},
+ {t:{ko:'내년 모델이 올해 AI가 만든 그림으로 학습한다.',zh:'明年的模型用今年 AI 生成的图片训练。',en:'Next year\'s model learns from this year\'s AI pictures.'},a:3},
+ {t:{ko:'사람들이 더 눌러서 남쪽 이름에 ‘체포됨?’ 광고가 늘었다.',zh:'因为人们点得更多，南边名字的“被捕过？”广告增加了。',en:'“Arrested?” grows for South names because people clicked it.'},a:1},
+];
+S({ch:2,
+ title:{ko:'고리의 이름을 대라',zh:'说出循环的名字',en:'Name That Loop'},
+ story:{ko:'각 장면을 그 뒤의 기제와 짝지으세요. 기제는 한 번씩만 씁니다.',zh:'把每个场景与背后的机制配对。每种机制只用一次。',en:'Match each scene to the mechanism behind it. Each mechanism is used once.'},
+ task:{ko:'네 개를 모두 고른 뒤 ‘확인’을 누르세요.',zh:'四个都选好后点击“检查”。',en:'Choose all four, then press Check.'},
+ init(s){ s.sel=[-1,-1,-1,-1]; s.checked=false; s.tries=0; s.ok=false; },
+ ui(s,box){ const m=el('div','match'); SCENES.forEach((sc,i)=>{ const r=el('div','mrow'); r.innerHTML=`<div><b>${i+1}.</b> ${L(sc.t)}</div>`; const sel=el('select'); sel.innerHTML=`<option value="-1">—</option>`+MECH.map((x,k)=>`<option value="${k}">${String.fromCharCode(65+k)}. ${tx(x)}</option>`).join(''); sel.value=s.sel[i]; sel.onchange=()=>{ s.sel[i]=+sel.value; r.classList.remove('ok','bad'); }; r.appendChild(sel); m.appendChild(r); }); box.appendChild(m);
+  box.appendChild(row(btn({ko:'확인',zh:'检查',en:'Check'},()=>{ if(s.sel.includes(-1)){ toast(tx({ko:'네 개 모두 고르세요',zh:'请全部选择',en:'Choose all four'})); return; } s.tries++; let all=true; [...m.children].forEach((r,i)=>{ const ok=s.sel[i]===SCENES[i].a; r.classList.toggle('ok',ok); r.classList.toggle('bad',!ok); if(!ok) all=false; }); if(all){ s.ok=true; PROG.quiz[cur]={ok:true,first:s.tries===1}; save(); } }))); },
+ draw(s){ const t=performance.now(); px(0,0,320,180,'#1d2b53'); const labs=['LOOK','CLICK','TYPICAL','RECYCLE']; const cols=['#29adff','#ff77a8','#ffa300','#00c060']; for(let k=0;k<4;k++){ const x=16+k*76, open=s.ok||(s.sel.includes(k)&&s.checked); px(x,40,60,90,'#0b1030'); px(x+3,43,54,84,open?'#fff8ef':cols[k]); if(!open){ px(x+46,84,4,4,'#ffec27'); } else { blob(x+21,90,k%2?'peach':'mint',{s:2,bob:t/300+k}); } tt(labs[k],x+30,136,'#fff8ef',1,'center'); tt(String.fromCharCode(65+k),x+30,28,cols[k],2,'center'); } tt(s.ok?'ALL FOUR DOORS FOUND!':'FOUR DOORS FOR BIAS',160,8,'#ffec27',2,'center'); },
+ chart(s){ const n=s.sel.filter((v,i)=>v===SCENES[i].a).length; chartBars([{label:'MATCHED',v:s.ok?4:0,color:'#00a050',text:s.ok?'4/4':'?'}],{yMax:4,ticks:[0,2,4],unit:''}); legend([]); },
+ done(s){ return s.ok; },
+ key:{ko:'편향이 들어오는 문 네 개: <b>어디를 보는가, 무엇을 누르는가, 무엇을 전형으로 치는가, 무엇을 재활용하는가.</b> 실제 시스템은 여러 문을 동시에 열곤 합니다.',zh:'偏见进入的四扇门：<b>往哪里看、点什么、什么算典型、回收什么。</b>现实中的系统常常同时打开好几扇门。',en:'Four doors for bias: <b>where we look, what we click, what counts as typical, and what we recycle.</b> Real systems often open several at once.'}
+});
+/* ---------- 20 ---------- */
+const FIX={
+ rumor:[{k:'acc',l:{ko:'클릭만이 아니라 정확성으로도 순위 매기기(클릭 30%)',zh:'不只看点击，也按准确性排序（点击30%）',en:'Rank by accuracy too, not just clicks (clicks 30%)'},c:{ko:'비용: 전체 클릭이 줄어 버즈의 수익이 준다.',zh:'代价：总点击下降，Buzz 收入减少。',en:'Cost: total clicks drop, so Buzz earns less.'}},
+        {k:'friction',l:{ko:'‘공유 전에 읽으셨나요?’ 안내 띄우기',zh:'弹出“转发前读过了吗？”提示',en:'Add a “Read before you share?” prompt'},c:{ko:'비용: 사실인 글의 공유도 느려진다.',zh:'代价：真实帖子的转发也变慢了。',en:'Cost: true posts spread more slowly too.'}},
+        {k:'pin',l:{ko:'정정 글을 맨 위에 고정하기',zh:'把更正置顶',en:'Pin the correction to the top'},c:{ko:'비용: 무엇이 ‘사실’인지 누군가 판정해야 한다. 누가?',zh:'代价：必须有人判定什么是“真的”。由谁来判定？',en:'Cost: someone must decide what is “true.” Who?'}}],
+ patrol:[{k:'rate',l:{ko:'건수가 아니라 비율(확인 1건당 사건)로 배치하기',zh:'按比率（每次检查的事件数）而不是总数分配',en:'Allocate by rate (incidents per check), not raw counts'},c:{ko:'비용: 사건만이 아니라 모든 확인을 기록해야 한다.',zh:'代价：不仅记录事件，每次检查都要记录。',en:'Cost: every check must be logged, not just incidents.'}},
+         {k:'reset',l:{ko:'50 대 50으로 다시 시작하기',zh:'重置为50对50',en:'Restart from an even 50/50 split'},c:{ko:'비용: 이것만으로는 불안정하다. 작은 우연한 차이가 다시 커질 수 있다.',zh:'代价：单靠这一项不稳定，小的偶然差异可能再次放大。',en:'Cost: alone, it is fragile. Small random gaps can grow back.'}}],
+ gen:[{k:'rebal',l:{ko:'학습 보관소를 50 대 50으로 재조정하기',zh:'把训练档案调整为50对50',en:'Rebalance the training archive to 50/50'},c:{ko:'비용: 과거에 없던 균형을 보여 준다. 정직한가, 지향인가?',zh:'代价：呈现了过去不存在的平衡。这是诚实，还是理想？',en:'Cost: it shows a balance the past never had. Honest, or aspirational?'}},
+      {k:'full',l:{ko:'전체 분포에서 뽑기(모험적으로)',zh:'从完整分布中抽样（大胆）',en:'Sample the full range (Take risks)'},c:{ko:'비용: 그림이 덜 ‘전형적’이라 일부 이용자는 낮게 평가한다.',zh:'代价：图片不那么“典型”，部分用户评价较低。',en:'Cost: pictures look less “typical,” and some users rate them lower.'}},
+      {k:'noai',l:{ko:'AI가 만든 그림은 학습에서 빼기',zh:'训练时排除 AI 生成的图片',en:'Keep AI-made pictures out of training'},c:{ko:'비용: 웹 규모에서 AI 그림을 가려내기 어렵다.',zh:'代价：在网络规模上很难识别 AI 图片。',en:'Cost: AI-made pictures are hard to detect at web scale.'}}],
+};
+function labRumor(f){ let bel=0,clk=0; const n=8; for(let i=0;i<n;i++){ const T=makeTown(); seedRumor(T); const P={w:f.acc?.3:1,posts:[POST.R,POST.C],base:.35,ramp:10,shareP:.45,repeat:true,friction:!!f.friction,pin:!!f.pin}; for(let d=0;d<8;d++) townDay(T,P); bel+=T.hist[T.hist.length-1].bel; clk+=Object.values(T.clicks).reduce((a,b)=>a+b,0); } return {bel:Math.round(bel/n),clk:Math.round(clk/n)}; }
+function labPatrol(f){ let sh=f.reset?.5:.6; for(let d=0;d<20;d++) sh=patrolDay(sh,f.rate?'rate':'hot',20000).next; const ratio=Math.min(sh,1-sh)/Math.max(sh,1-sh); return {sh:Math.round(sh*100),ratio:+ratio.toFixed(2)}; }
+function labGen(f){ const arch=f.rebal?.5:.7, T=f.full?1:.5, mix=f.noai?0:.6; let train=arch,out=arch; for(let g=0;g<6;g++){ out=amp(train,T); train=(1-mix)*arch+mix*out; } const ratio=Math.min(out,1-out)/Math.max(out,1-out); return {mint:Math.round(out*100),ratio:+ratio.toFixed(2)}; }
+S({ch:3,
+ title:{ko:'고치기 실험실',zh:'修复实验室',en:'Fix-It Lab'},
+ story:{ko:'이제 여러분이 마을의 알고리즘 감사관입니다. 시스템마다 고치기를 켜 보고 <b>무엇이 바뀌는지</b>, 그리고 <b>각 고치기에 어떤 비용이 드는지</b> 보세요. 그래프의 회색 막대는 고치기 전, 색 막대는 고친 뒤입니다.',
+        zh:'现在你是小镇的算法审计员。为每个系统开启修复，看看<b>什么改变了</b>，以及<b>每项修复的代价是什么</b>。图中灰色柱是修复前，彩色柱是修复后。',
+        en:'Now you are the town\'s algorithm auditor. Turn on fixes for each system and see <b>what changes</b>, and <b>what each fix costs</b>. In the chart, gray bars are before, colored bars are after.'},
+ task:{ko:'시스템마다 고치기를 하나 이상 켜고 실행한 뒤, 아래 두 질문에 자기 말로 답하세요(AI 사용 금지).',zh:'每个系统至少开启一项修复并运行，然后用自己的话回答下面两个问题（禁止使用 AI）。',en:'Turn on at least one fix per system and run the lab, then answer the two questions below in your own words (no AI).'},
+ init(s){ s.f={}; s.tried={rumor:false,patrol:false,gen:false}; s.base={r:labRumor({}),p:labPatrol({}),g:labGen({})}; s.res=null; },
+ ui(s,box){ const groups=[['rumor',{ko:'① 버즈 피드 (소문)',zh:'① Buzz 信息流（谣言）',en:'① Buzz feed (rumor)'}],['patrol',{ko:'② 순찰봇 AI',zh:'② 巡逻机器人AI',en:'② PatrolBot AI'}],['gen',{ko:'③ 버즈 드로우',zh:'③ Buzz Draw',en:'③ Buzz Draw'}]];
+  groups.forEach(([g,name])=>{ const fs=el('fieldset'); fs.innerHTML=`<legend>${L(name)}</legend>`; FIX[g].forEach(fx=>{ const lab=el('label'); const cb=el('input'); cb.type='checkbox'; cb.checked=!!s.f[fx.k]; const cost=el('div','cost',L(fx.c)); cost.style.display=cb.checked?'block':'none'; cb.onchange=()=>{ s.f[fx.k]=cb.checked; cost.style.display=cb.checked?'block':'none'; }; lab.appendChild(cb); lab.appendChild(el('span','',L(fx.l))); fs.appendChild(lab); fs.appendChild(cost); }); box.appendChild(fs); });
+  box.appendChild(row(btn({ko:'실험실 실행',zh:'运行实验室',en:'Run the lab'},()=>{ const f=s.f; s.res={r:labRumor(f),p:labPatrol(f),g:labGen(f)}; FIX.rumor.some(x=>f[x.k])&&(s.tried.rumor=true); FIX.patrol.some(x=>f[x.k])&&(s.tried.patrol=true); FIX.gen.some(x=>f[x.k])&&(s.tried.gen=true); PROG.data.lab={f:{...f},res:s.res,base:s.base}; save(); })));
+  const qs=[{ko:'1. 어떤 고치기가 가장 큰 변화를 냈고, 그 비용은 무엇이었나요? (2~3문장)',zh:'1. 哪项修复带来的变化最大？它的代价是什么？（2–3句）',en:'1. Which fix changed the most, and what did it cost? (2–3 sentences)'},{ko:'2. 실제로 쓰는 앱이나 AI 도구 하나를 대세요. 그 안에서 네 가지 고리 중 무엇이 돌고 있을 수 있나요? 바깥에서 어떻게 확인할 수 있을까요?',zh:'2. 说出一个你实际使用的应用或 AI 工具。其中可能运行着四种循环中的哪一种？你如何从外部检验？',en:'2. Name one app or AI tool you actually use. Which of the four loops could be running inside it, and how could you check from the outside?'}];
+  qs.forEach((q,i)=>{ const w=el('div'); w.innerHTML=`<div style="font-weight:700;margin:6px 0 4px">${L(q)}</div>`; const ta=el('textarea'); ta.value=PROG.refl[i]||''; ta.oninput=()=>{ PROG.refl[i]=ta.value; save(); refresh(); }; w.appendChild(ta); box.appendChild(w); });
+  const rb=el('button','pbtn green',L(UI.report)); rb.id='reportBtn'; rb.onclick=openReport; box.appendChild(row(rb)); },
+ draw(s){ const t=performance.now(); px(0,0,320,180,'#1d2b53'); tt('FIX-IT LAB',160,6,'#ffec27',2,'center'); const R=s.res||{r:s.base.r,p:s.base.p,g:s.base.g};
+  const panel=(x,lab,good,val)=>{ px(x,24,100,150,'#0b1030'); px(x+2,26,96,146,good?'#e4fbe9':'#ffe3e8'); tt(lab,x+50,30,'#1d2b53',1,'center'); tt(val,x+50,150,'#1d2b53',2,'center'); tt(good?'BETTER':'LOOPING',x+50,166,good?'#00a050':'#e8204e',1,'center'); };
+  const rg=R.r.bel<s.base.r.bel*0.6, pg=R.p.ratio>=.8, gg=R.g.ratio>=.8;
+  panel(6,'BUZZ FEED',rg,R.r.bel+'%'); panel(110,'PATROLBOT',pg,R.p.sh+'% S'); panel(214,'BUZZ DRAW',gg,R.g.mint+'% M');
+  for(let i=0;i<6;i++) blob(14+(i%3)*28,50+Math.floor(i/3)*40,i%2?'peach':'mint',{bel:!rg&&i<4,bob:t/300+i});
+  const nS=Math.round(R.p.sh/10); for(let i=0;i<10;i++) bot(118+(i%5)*18,i<nS?110:52+Math.floor(i/5)*14*0,t+i*90);
+  px(110,92,100,4,'#29adff'); tt('N',114,44,'#3fa88a',1); tt('S',114,100,'#d9784a',1);
+  const nm=Math.round(R.g.mint/10); for(let i=0;i<10;i++) portrait(222+(i%5)*17,48+Math.floor(i/5)*38,i<nm?'mint':'peach',1.4); },
+ chart(s){ const R=s.res; const b=s.base; chartBars([{label:'RUMOR',v:b.r.bel,color:'#b8b0a6'},{label:'FIXED',v:R?R.r.bel:0,color:'#7e2553',text:R?String(R.r.bel):'-'},{label:'PATROL',v:b.p.ratio*100,color:'#b8b0a6',text:b.p.ratio.toFixed(2)},{label:'FIXED',v:R?R.p.ratio*100:0,color:'#29adff',text:R?R.p.ratio.toFixed(2):'-'},{label:'DRAW',v:b.g.ratio*100,color:'#b8b0a6',text:b.g.ratio.toFixed(2)},{label:'FIXED',v:R?R.g.ratio*100:0,color:'#ffa300',text:R?R.g.ratio.toFixed(2):'-'}],{hlines:[{v:80,color:'#e8204e',label:'0.80'}]}); legend([{color:'#7e2553',label:{ko:'소문을 믿는 주민 %(낮을수록 좋음)',zh:'相信谣言的居民 %（越低越好）',en:'Residents believing the rumor, % (lower is better)'}},{color:'#29adff',label:{ko:'순찰 균형 비율 ×100(0.80 이상 목표)',zh:'巡逻平衡比值 ×100（目标≥0.80）',en:'Patrol balance ratio ×100 (aim ≥ 0.80)'}},{color:'#ffa300',label:{ko:'그림 속 피치÷민트 비율 ×100(0.80 이상 목표)',zh:'图中蜜桃÷薄荷比值 ×100（目标≥0.80）',en:'Peach ÷ Mint ratio in pictures ×100 (aim ≥ 0.80)'}}]); },
+ readout(s){ if(!s.res) return ''; const R=s.res,b=s.base; const ck=v=>v>=.8?'✅':'⚠️'; return `<div class="card"><table><tr><th></th><th>${L({ko:'고치기 전',zh:'修复前',en:'Before'})}</th><th>${L({ko:'고친 뒤',zh:'修复后',en:'After'})}</th></tr>
+  <tr><td>${L({ko:'소문을 믿는 주민',zh:'相信谣言的居民',en:'Believe the rumor'})}</td><td>${b.r.bel}%</td><td><b>${R.r.bel}%</b></td></tr>
+  <tr><td>${L({ko:'버즈 전체 클릭',zh:'Buzz 总点击',en:'Total Buzz clicks'})}</td><td>${b.r.clk}</td><td><b>${R.r.clk}</b></td></tr>
+  <tr><td>${L({ko:'남쪽 순찰 비율 · 균형 비율',zh:'南边巡逻比例 · 平衡比值',en:'South patrol share · balance ratio'})}</td><td>${b.p.sh}% · ${b.p.ratio.toFixed(2)} ${ck(b.p.ratio)}</td><td><b>${R.p.sh}% · ${R.p.ratio.toFixed(2)}</b> ${ck(R.p.ratio)}</td></tr>
+  <tr><td>${L({ko:'그림 속 민트 비율 · 피치÷민트',zh:'图中薄荷比例 · 蜜桃÷薄荷',en:'Mint share · Peach ÷ Mint'})}</td><td>${b.g.mint}% · ${b.g.ratio.toFixed(2)} ${ck(b.g.ratio)}</td><td><b>${R.g.mint}% · ${R.g.ratio.toFixed(2)}</b> ${ck(R.g.ratio)}</td></tr></table></div>`; },
+ done(s){ return s.tried.rumor&&s.tried.patrol&&s.tried.gen&&(PROG.refl[0]||'').trim().length>=30&&(PROG.refl[1]||'').trim().length>=30; },
+ key:{ko:'고칠 방법은 있지만 저마다 비용이 있고, <b>누군가는 그 비용을 치르기로 결정해야</b> 합니다. 편향은 코드 속 버그만이 아니라, 무엇을 재고 순위 매기고 보상할지에 대한 선택입니다.',zh:'修复的办法是有的，但每一项都有代价，<b>总得有人决定去承担这个代价</b>。偏见不只是代码里的漏洞，更是关于测量什么、排序什么、奖励什么的选择。',en:'Fixes exist, but each has a cost, and <b>someone must decide to pay it</b>. Bias is not only a bug in code; it is a choice about what to measure, rank, and reward.'}
+});
+
+/* =========================================================
+   CHECKLISTS: what each multi-step task still needs
+   ========================================================= */
+const has=(s,f)=>!!(s.runs&&s.runs.some(f));
+const NEED={
+ 0:s=>[[s.met.size>=3,{ko:`주민 3명 클릭 (지금 ${s.met.size}명)`,zh:`点击3位居民（现在 ${s.met.size} 位）`,en:`Click 3 residents (now ${s.met.size})`}]],
+ 1:s=>[[s.days>=2,{ko:`하루 실행 2번 (지금 ${s.days}번)`,zh:`运行一天，共2次（现在 ${s.days} 次）`,en:`Run one day twice (now ${s.days})`}]],
+ 12:s=>[[s.ok,{ko:'비율 입력 후 확인',zh:'输入比值并检查',en:'Enter the ratio and Check'}]],
+ 13:s=>[[s.sorted,{ko:'보관소 분류하기',zh:'给档案分类',en:'Sort the archive'}]],
+ 2:s=>[[has(s,r=>r.w>=.8),{ko:'클릭 80% 이상으로 6일 실행',zh:'以点击≥80%运行6天',en:'Run 6 days with clicks ≥ 80%'}],[has(s,r=>r.w<=.3),{ko:'클릭 30% 이하로 6일 실행',zh:'以点击≤30%运行6天',en:'Run 6 days with clicks ≤ 30%'}]],
+ 3:s=>[[PROG.pred[3]!=null,{ko:'아래 예측 고르기',zh:'在下方选择预测',en:'Pick a prediction below'}],[s.ran,{ko:'8일 실행',zh:'运行8天',en:'Run 8 days'}]],
+ 5:s=>[[has(s,r=>r.rep),{ko:'다시 보여 주기 켬으로 실행',zh:'重复推送“开”运行',en:'Run with re-show ON'}],[has(s,r=>!r.rep),{ko:'다시 보여 주기 끔으로 실행',zh:'重复推送“关”运行',en:'Run with re-show OFF'}]],
+ 7:s=>[[s.rev.N,{ko:'북쪽 확인',zh:'查看北边',en:'Reveal North'}],[s.rev.S,{ko:'남쪽 확인',zh:'查看南边',en:'Reveal South'}]],
+ 8:s=>[[s.days>=3,{ko:`3일 이상 실행 (지금 ${s.days}일)`,zh:`运行至少3天（现在 ${s.days} 天）`,en:`Run 3+ days (now ${s.days})`}]],
+ 9:s=>[[has(s,r=>r.mode==='prop'),{ko:'비례로 20일 실행',zh:'“按比例”运行20天',en:'Run 20 days in Proportional'}],[has(s,r=>r.mode==='hot'),{ko:'핫스폿으로 20일 실행',zh:'“热点”运行20天',en:'Run 20 days in Hotspot'}]],
+ 10:s=>[[has(s,r=>r.boost>=1),{ko:'보너스 ×1 이상으로 10일 실행',zh:'加成 ×1 以上运行10天',en:'Run 10 days with bonus ×1 or more'}]],
+ 11:s=>[[has(s,r=>r.bias===0),{ko:'보너스 0으로 실행',zh:'加成为0时运行',en:'Run with bonus 0'}],[has(s,r=>r.bias>0),{ko:'보너스 0보다 크게 실행',zh:'加成大于0时运行',en:'Run with bonus above 0'}]],
+ 14:s=>[[has(s,r=>r.d<=.25),{ko:'왼쪽 끝 근처(안전하게)에서 생성',zh:'在最左（保守）附近生成',en:'Generate near the left (safe) end'}],[has(s,r=>r.d>=.75),{ko:'오른쪽 끝 근처(모험적으로)에서 생성',zh:'在最右（大胆）附近生成',en:'Generate near the right (risky) end'}]],
+ 15:s=>[[has(s,r=>r.gap>0),{ko:'격차 0보다 크게 10라운드 실행',zh:'差距大于0运行10轮',en:'Run 10 rounds with a gap above 0'}]],
+ 16:s=>[[has(s,r=>r.mix<=.2),{ko:'AI 비율 20% 이하로 실행',zh:'AI 比例≤20% 运行',en:'Run with AI-made ≤ 20%'}],[has(s,r=>r.mix>=.6),{ko:'AI 비율 60% 이상으로 실행',zh:'AI 比例≥60% 运行',en:'Run with AI-made ≥ 60%'}]],
+ 17:s=>[[has(s,r=>r.look),{ko:'유사 타깃팅 켬으로 실행',zh:'相似定向“开”运行',en:'Run with lookalike ON'}],[has(s,r=>!r.look),{ko:'유사 타깃팅 끔으로 실행',zh:'相似定向“关”运行',en:'Run with lookalike OFF'}]],
+ 19:s=>[[s.tried.rumor,{ko:'① 버즈 피드 고치기 켜고 실행',zh:'① 开启 Buzz 信息流修复并运行',en:'① Buzz feed: a fix on, then Run'}],[s.tried.patrol,{ko:'② 순찰봇 고치기 켜고 실행',zh:'② 开启巡逻机器人修复并运行',en:'② PatrolBot: a fix on, then Run'}],[s.tried.gen,{ko:'③ 버즈 드로우 고치기 켜고 실행',zh:'③ 开启 Buzz Draw 修复并运行',en:'③ Buzz Draw: a fix on, then Run'}],[(PROG.refl[0]||'').trim().length>=30,{ko:'질문 1 답 (30자 이상)',zh:'回答问题1（30字以上）',en:'Answer Q1 (30+ characters)'}],[(PROG.refl[1]||'').trim().length>=30,{ko:'질문 2 답 (30자 이상)',zh:'回答问题2（30字以上）',en:'Answer Q2 (30+ characters)'}]],
+};
+function flash(id){ const e=document.getElementById(id); if(!e) return; e.scrollIntoView({behavior:'smooth',block:'center'}); e.classList.remove('flash'); void e.offsetWidth; e.classList.add('flash'); }
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function maxUnlocked(){ if(UNLOCK_ALL) return STAGES.length-1; let i=0; while(i<STAGES.length-1 && PROG.done[i]) i++; return i; }
+function renderLangbar(){ const b=document.getElementById('langbar'); b.innerHTML=''; LANGS.forEach(l=>{ const x=el('button',PROG.lang===l.id?'on':'',l.label); x.onclick=()=>{ PROG.lang=l.id; save(); applyLang(); rerender(); }; b.appendChild(x); }); const lab=el('label'); const cb=el('input'); cb.type='checkbox'; cb.checked=PROG.withEn; cb.disabled=PROG.lang==='en'; cb.onchange=()=>{ PROG.withEn=cb.checked; save(); applyLang(); }; lab.appendChild(cb); lab.appendChild(document.createTextNode('+ English')); b.appendChild(lab); }
+function renderMap(){ const m=document.getElementById('map'); m.innerHTML=''; const mu=maxUnlocked(); CH.forEach((c,ci)=>{ const g=el('div','chap'); g.appendChild(el('span','cl',tx(c.name))); STAGES.forEach((st,i)=>{ if(st.ch!==ci) return; const b=el('button','sq'+(i>mu?' lock':'')+(i===cur?' cur':'')+(PROG.done[i]?' done':''),String(i+1)); b.style.background=c.color; b.title=tx(st.title); b.onclick=()=>{ if(i<=mu) go(i); }; g.appendChild(b); }); m.appendChild(g); }); const stars=STAGES.reduce((a,_,i)=>a+(PROG.quiz[i]&&PROG.quiz[i].first?1:0),0); const tot=STAGES.filter((st,i)=>(st.quiz&&st.quiz.type!=='predict')||i===6||i===18).length; document.getElementById('stars').textContent=`★ ${stars}/${tot}`; }
+function go(i){ stopPlay(); cur=i; if(!ST[i]){ ST[i]={}; STAGES[i].init&&STAGES[i].init.call(STAGES[i],ST[i]); } rerender(); window.scrollTo({top:0,behavior:'smooth'}); }
+function rerender(){ const st=STAGES[cur], s=ST[cur];
+  document.getElementById('subtitle').innerHTML=L(UI.sub);
+  const c=CH[st.ch]; const tag=document.getElementById('chtag'); tag.innerHTML=`${tx(UI.stage)} ${cur+1}/20 · ${tx(c.name)}`; tag.style.background=c.color;
+  document.getElementById('title').innerHTML=L(st.title);
+  document.getElementById('story').innerHTML=LB(st.story);
+  const box=document.getElementById('controls'); box.innerHTML=''; st.ui&&st.ui.call(st,s,box);
+  s._quizShown=false; document.getElementById('quiz').innerHTML=''; document.getElementById('quiz').style.display='none';
+  document.getElementById('prev').innerHTML=L(UI.prev); renderMap(); refresh(); }
+function renderQuiz(){ const st=STAGES[cur], s=ST[cur], q=st.quiz, box=document.getElementById('quiz'); box.style.display='block'; const isP=q.type==='predict'; const ans=typeof q.a==='function'?q.a(s):q.a;
+  box.innerHTML=`<div class="qh">${isP?'🔮 '+L(UI.predict):'✔ '+L(UI.check)}</div><div class="q">${L(q.q)}</div>`;
+  const fb=el('div','fb'); const rec=PROG.quiz[cur];
+  q.opts.forEach((o,k)=>{ const b=el('button','opt',`<b>${String.fromCharCode(65+k)}.</b> ${L(o)}`);
+    if(isP && PROG.pred[cur]===k) b.classList.add('picked');
+    if(!isP && rec && rec.ok && k===ans) b.classList.add('right');
+    b.onclick=()=>{ if(isP){ PROG.pred[cur]=k; save(); [...box.querySelectorAll('.opt')].forEach(x=>x.classList.remove('picked')); b.classList.add('picked'); fb.innerHTML=L(UI.recorded); refresh(); return; }
+      const r=PROG.quiz[cur]||(PROG.quiz[cur]={tries:0}); if(r.ok) return; r.tries=(r.tries||0)+1;
+      if(k===ans){ r.ok=true; r.first=r.tries===1; b.classList.add('right'); fb.innerHTML=`<b>${L(UI.right)}</b> ${L(q.why)}`; } else { b.classList.add('wrong'); fb.innerHTML=L(UI.wrong); }
+      save(); refresh(); };
+    box.appendChild(b); });
+  if(!isP && rec && rec.ok) fb.innerHTML=`<b>${L(UI.right)}</b> ${L(q.why)}`;
+  if(isP && PROG.pred[cur]!=null) fb.innerHTML=L(UI.recorded);
+  box.appendChild(fb); }
+function quizOK(i){ const st=STAGES[i]; if(!st.quiz) return true; if(st.quiz.type==='predict') return PROG.pred[i]!=null; return !!(PROG.quiz[i]&&PROG.quiz[i].ok); }
+function refresh(){ const st=STAGES[cur], s=ST[cur]; if(!st||!s) return;
+  const taskOK=st.done?st.done(s):true;
+  const t=document.getElementById('task'); t.className='task'+(taskOK?' ok':''); const nd=NEED[cur]?NEED[cur](s):null; t.innerHTML=`<span class="chk">${taskOK?'☑':'☐'}</span><b>${tx(UI.task)}</b>${LB(st.task)}`+(nd?`<ul class="need">${nd.map(([ok,l])=>`<li class="${ok?'ok':''}">${ok?'☑':'☐'} ${tx(l)}</li>`).join('')}</ul>`:'');
+  INLINE=true; try{ document.getElementById('readout').innerHTML=st.readout?st.readout(s):''; } finally { INLINE=false; }
+  if(st.quiz && (taskOK||st.quizFirst) && !s._quizShown){ s._quizShown=true; renderQuiz(); if(taskOK && !quizOK(cur) && !st.quizFirst) setTimeout(()=>flash('quiz'),300); }
+  const complete=taskOK&&quizOK(cur);
+  if(complete && !PROG.done[cur]){ PROG.done[cur]=true; save(); toast(L(UI.clear)+' ★'); renderMap(); }
+  const k=document.getElementById('key'); if(complete||PROG.done[cur]){ k.style.display='block'; k.innerHTML=`<div class="kh">💡 ${L(UI.key)}</div>${LB(st.key)}`; } else k.style.display='none';
+  const nx=document.getElementById('next'); const last=cur===STAGES.length-1; nx.innerHTML=last?L(UI.report):L(UI.next); nx.disabled=false; nx.classList.toggle('dim',!(PROG.done[cur]||UNLOCK_ALL));
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('where').textContent=`${cur+1} / ${STAGES.length}`;
+  document.querySelectorAll('#controls [data-run]').forEach(b=>{ b.disabled=!!RUN; });
+  const rb=document.getElementById('reportBtn'); if(rb) rb.disabled=!PROG.done[STAGES.length-1];
+  s._chartDirty=true; }
+document.getElementById('prev').onclick=()=>{ if(cur>0) go(cur-1); };
+document.getElementById('next').onclick=()=>{ const st=STAGES[cur], s=ST[cur];
+  if(cur===STAGES.length-1 && PROG.done[cur]){ openReport(); return; }
+  if(PROG.done[cur]||UNLOCK_ALL){ if(cur<STAGES.length-1) go(cur+1); else openReport(); return; }
+  const taskOK=st.done?st.done(s):true;
+  if(!taskOK || st.quizFirst && PROG.pred[cur]==null && !quizOK(cur)){ if(st.quizFirst && PROG.pred[cur]==null){ toast(tx({ko:'먼저 예측을 고르세요 ↓',zh:'请先选择预测 ↓',en:'Pick a prediction first ↓'})); flash('quiz'); } else { toast(tx({ko:'할 일의 ☐ 칸을 먼저 채우세요',zh:'请先完成任务中的 ☐ 项',en:'Finish the ☐ items in the task first'})); flash('task'); } return; }
+  toast(tx({ko:'아래 체크포인트 질문에 답하세요 ↓',zh:'请回答下方的检查点问题 ↓',en:'Answer the checkpoint question below ↓'})); flash('quiz'); };
+document.getElementById('scene').addEventListener('click',e=>{ const st=STAGES[cur]; if(!st.click) return; const r=e.target.getBoundingClientRect(); st.click(ST[cur],(e.clientX-r.left)/r.width*320,(e.clientY-r.top)/r.height*180); });
+
+/* =========================================================
+   TITLE + REPORT
+   ========================================================= */
+function openTitle(){ const ov=document.getElementById('titleOv'); const b=document.getElementById('titleBox'); const any=Object.keys(PROG.done).length>0;
+  b.innerHTML=`<div class="bigtitle">LOOP<br>TOWN</div>
+  <div style="text-align:center;margin:10px 0">${LB({ko:'<b>알고리즘은 어떻게 소문과 고정관념을 키우나</b><br>PUBS279 AI and Society · 6주차 Algorithmic Bias · 20단계 연습',zh:'<b>算法如何放大谣言与刻板印象</b><br>PUBS279 AI and Society · 第6周 Algorithmic Bias · 20关练习',en:'<b>How algorithms grow rumors and stereotypes</b><br>PUBS279 AI and Society · Week 6 Algorithmic Bias · 20-stage practice'})}</div>
+  <div class="langpick" id="lp"></div>
+  <div class="chips"><span style="background:#ffc6dc">${L({ko:'1장 소문',zh:'第1章 谣言',en:'1 Rumor'})}</span><span style="background:#c7f0ff">${L({ko:'2장 집단 이미지',zh:'第2章 群体形象',en:'2 Group image'})}</span><span style="background:#ffe1a8">${L({ko:'3장 직업 고정관념',zh:'第3章 职业刻板印象',en:'3 Job stereotypes'})}</span><span style="background:#b8f5c8">${L({ko:'마무리 고치기',zh:'收尾 修复',en:'Finale: fix it'})}</span></div>
+  ${LB({ko:'약 40분. 각 단계에서 직접 실행해 보고, 체크포인트에 답하면 다음 단계가 열립니다. 진행 상황은 이 브라우저에 저장됩니다. 민트·피치 주민은 실제 집단을 가리키지 않는 가상의 집단입니다.',zh:'约40分钟。每关先亲手运行，再回答检查点，就能解锁下一关。进度保存在本浏览器中。薄荷、蜜桃居民是虚构群体，不指代任何真实群体。',en:'About 40 minutes. Run each stage yourself, answer the checkpoint, and the next stage unlocks. Progress is saved in this browser. Mint and Peach folk are fictional groups, not stand-ins for any real group.'})}
+  <div class="row" style="justify-content:center;margin-top:16px"><button class="pbtn" id="startBtn" style="font-size:18px">${any?L({ko:'이어서 하기 ▶',zh:'继续 ▶',en:'Continue ▶'}):L({ko:'시작 ▶',zh:'开始 ▶',en:'Start ▶'})}</button>${any?`<button class="pbtn alt" id="resetBtn">${L({ko:'처음부터',zh:'从头开始',en:'Start over'})}</button>`:''}</div>`;
+  const lp=b.querySelector('#lp'); LANGS.forEach(l=>{ const x=el('button',PROG.lang===l.id?'on':'',l.label); x.onclick=()=>{ PROG.lang=l.id; save(); applyLang(); openTitle(); rerender(); }; lp.appendChild(x); });
+  b.querySelector('#startBtn').onclick=()=>{ ov.classList.remove('show'); PROG.started=true; save(); go(Math.min(maxUnlocked(),STAGES.length-1)); };
+  const rs=b.querySelector('#resetBtn'); if(rs) rs.onclick=()=>{ if(!confirm(tx({ko:'진행 기록을 모두 지울까요?',zh:'要清除全部进度吗？',en:'Erase all progress?'}))) return; const lang=PROG.lang,we=PROG.withEn; Object.keys(PROG).forEach(k=>delete PROG[k]); Object.assign(PROG,{done:{},quiz:{},pred:{},refl:{},data:{},lang,withEn:we,name:'',sid:''}); save(); for(const k in ST) delete ST[k]; openTitle(); go(0); };
+  ov.classList.add('show'); }
+function fixNames(f){ return [...FIX.rumor,...FIX.patrol,...FIX.gen].filter(x=>f[x.k]).map(x=>tx(x.l)).join(' / '); }
+function reportText(){ const lines=[]; lines.push('LOOP TOWN · PUBS279 Week 6 practice'); lines.push(`Name: ${PROG.name||''} / ID: ${PROG.sid||''}`); lines.push('Date: '+new Date().toLocaleString()); lines.push('');
+  STAGES.forEach((st,i)=>{ const q=PROG.quiz[i]; lines.push(`${String(i+1).padStart(2,'0')}. ${tx(st.title)} — ${PROG.done[i]?'done':'not done'}${q&&q.first?' ★':''}`); });
+  lines.push(''); const hp=PROG.pred[3], sp=PROG.pred[13];
+  lines.push(`Prediction (St.4): ${hp!=null?tx(STAGES[3].quiz.opts[hp]):'-'} → actual: ${PROG.data.halfDay!=null?(PROG.data.halfDay===99?'never':'day '+PROG.data.halfDay):'-'}`);
+  lines.push(`Prediction (St.14): ${sp!=null?tx(STAGES[13].quiz.opts[sp]):'-'} → actual (safe setting): ${PROG.data.safeShare!=null?PROG.data.safeShare+'%':'-'}`);
+  lines.push(`80% rule ratio (St.13): ${PROG.data.ratio!=null?PROG.data.ratio:'-'}`);
+  if(PROG.data.lab){ const r=PROG.data.lab.res; const on=fixNames(PROG.data.lab.f); lines.push(`Fix-It Lab fixes: ${on||'-'} | believers ${r.r.bel}%, patrol ratio ${r.p.ratio}, picture ratio ${r.g.ratio}`); }
+  lines.push(''); lines.push('Q1: '+(PROG.refl[0]||'')); lines.push(''); lines.push('Q2: '+(PROG.refl[1]||'')); return lines.join('\n'); }
+function openReport(){ const ov=document.getElementById('reportOv'), b=document.getElementById('report'); const stars=STAGES.reduce((a,_,i)=>a+(PROG.quiz[i]&&PROG.quiz[i].first?1:0),0);
+  const hp=PROG.pred[3], sp=PROG.pred[13]; const lab=PROG.data.lab;
+  b.innerHTML=`<div class="bigtitle" style="font-size:20px">LOOP TOWN · REPORT</div>
+  <div class="row noprint" style="margin:10px 0"><button class="pbtn" id="cpBtn">${L({ko:'텍스트 복사',zh:'复制文本',en:'Copy as text'})}</button><button class="pbtn alt" id="prBtn">${L({ko:'인쇄 / PDF 저장',zh:'打印 / 存为 PDF',en:'Print / Save PDF'})}</button><button class="pbtn pink" id="clBtn">${L({ko:'닫기',zh:'关闭',en:'Close'})}</button></div>
+  <div class="row"><label>${L({ko:'이름',zh:'姓名',en:'Name'})} <input id="rName" value="${(PROG.name||'').replace(/"/g,'&quot;')}"></label><label>${L({ko:'학번',zh:'学号',en:'Student ID'})} <input id="rSid" value="${(PROG.sid||'').replace(/"/g,'&quot;')}"></label></div>
+  <p>${new Date().toLocaleString()} · ★ ${stars}</p>
+  <h3>${L({ko:'단계',zh:'关卡',en:'Stages'})}</h3><table>${STAGES.map((st,i)=>`<tr><td>${i+1}</td><td>${L(st.title)}</td><td>${PROG.done[i]?'✅':'—'}</td><td>${PROG.quiz[i]&&PROG.quiz[i].first?'★':''}</td></tr>`).join('')}</table>
+  <h3>${L({ko:'예측과 결과',zh:'预测与结果',en:'Predictions vs. results'})}</h3><table>
+   <tr><td>${L(STAGES[3].quiz.q)}</td><td>${hp!=null?L(STAGES[3].quiz.opts[hp]):'—'}</td><td>${PROG.data.halfDay!=null?(PROG.data.halfDay===99?'—':'DAY '+PROG.data.halfDay):'—'}</td></tr>
+   <tr><td>${L(STAGES[13].quiz.q)}</td><td>${sp!=null?L(STAGES[13].quiz.opts[sp]):'—'}</td><td>${PROG.data.safeShare!=null?PROG.data.safeShare+'%':'—'}</td></tr>
+   <tr><td>${L({ko:'80% 규칙 비율(13단계)',zh:'80% 规则比值（第13关）',en:'80% rule ratio (Stage 13)'})}</td><td colspan="2">${PROG.data.ratio!=null?PROG.data.ratio.toFixed(2):'—'}</td></tr>
+   ${lab?`<tr><td>${L({ko:'고치기 실험실',zh:'修复实验室',en:'Fix-It Lab'})}</td><td colspan="2">${fixNames(lab.f)||'—'}<br>${L({ko:'믿는 주민',zh:'相信的居民',en:'believers'})} ${lab.base.r.bel}% → ${lab.res.r.bel}% · ${L({ko:'순찰 비율',zh:'巡逻比值',en:'patrol ratio'})} ${lab.base.p.ratio} → ${lab.res.p.ratio} · ${L({ko:'그림 비율',zh:'图片比值',en:'picture ratio'})} ${lab.base.g.ratio} → ${lab.res.g.ratio}</td></tr>`:''}
+  </table>
+  <h3>${L({ko:'나의 답',zh:'我的回答',en:'My answers'})}</h3>
+  <p><b>1.</b></p><div class="refl" id="r1"></div><p><b>2.</b></p><div class="refl" id="r2"></div>`;
+  b.querySelector('#r1').textContent=PROG.refl[0]||''; b.querySelector('#r2').textContent=PROG.refl[1]||'';
+  b.querySelector('#rName').oninput=e=>{ PROG.name=e.target.value; save(); }; b.querySelector('#rSid').oninput=e=>{ PROG.sid=e.target.value; save(); };
+  b.querySelector('#cpBtn').onclick=async()=>{ const txt=reportText(); try{ await navigator.clipboard.writeText(txt); toast('COPIED!'); }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); toast('COPIED!');}catch(_){} ta.remove(); } };
+  b.querySelector('#prBtn').onclick=()=>window.print(); b.querySelector('#clBtn').onclick=()=>ov.classList.remove('show');
+  ov.classList.add('show'); }
+
+/* =========================================================
+   MAIN LOOP
+   ========================================================= */
+let lastT=0;
+function frame(t){ const st=STAGES[cur], s=ST[cur]; if(st&&s){ st.tick&&st.tick(s,t-lastT); G=SC; SC.clearRect(0,0,320,180); try{ st.draw(s,t); }catch(e){ console.error(e); } try{ st.chart&&st.chart(s); }catch(e){ console.error(e); } } lastT=t; requestAnimationFrame(frame); }
+applyLang();
+go(Math.min(maxUnlocked(),STAGES.length-1));
+openTitle();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
